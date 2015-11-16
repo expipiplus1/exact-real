@@ -6,7 +6,7 @@ module Main (main) where
 
 import Test.Tasty (testGroup, TestTree)
 import Test.Tasty.TH (defaultMainGenerator)
-import Test.Tasty.QuickCheck (Positive(..), testProperty)
+import Test.Tasty.QuickCheck (Positive(..), testProperty, (===), Property)
 
 import Data.CReal.Internal
 import Data.CReal.Extra ()
@@ -31,8 +31,8 @@ prop_decimalDigits (Positive p) = let d = decimalDigitsAtPrecision p
                                   in 10^d >= (2^p :: Integer) &&
                                      (d > 0 ==> 10^(d-1) < (2^p :: Integer))
 
-prop_showIntegral :: Integer -> Bool
-prop_showIntegral i = show i == show (fromInteger i :: CReal 0)
+prop_showIntegral :: Integer -> Property
+prop_showIntegral i = show i === show (fromInteger i :: CReal 0)
 
 main :: IO ()
 main = $(defaultMainGenerator)

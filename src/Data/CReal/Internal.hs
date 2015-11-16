@@ -87,6 +87,18 @@ instance Num (CReal n) where
 
   signum x = CR (\p -> signum (x `atPrecision` p) * 2^p)
 
+-- | Taking the reciprocal of zero will not terminate
+instance Fractional (CReal n) where
+  -- This should be in base
+  fromRational n = fromInteger (numerator n) / fromInteger (denominator n)
+
+  {-# INLINE recip #-}
+  -- TODO: Make recip 0 throw an error (if, for example, it would take more
+  -- than 4GB of memory to represent the result)
+  recip (CR x) = CR (\p -> let s = findFirstMonotonic ((3 <=) . abs . x)
+                               n = x (p + 2 * s + 2)
+                           in 2^(2 * p + 2 * s + 2) /. n)
+
 -- | Values of type @CReal p@ are compared for equality at precision @p@. This
 -- may cause values which differ by less than 2^-p to compare as equal.
 --
@@ -101,6 +113,14 @@ instance KnownNat n => Eq (CReal n) where
 instance KnownNat n => Ord (CReal n) where
   compare x y = let p = crealPrecision x
                 in compare ((x - y) `atPrecision` p) 0
+
+--------------------------------------------------------------------------------
+-- Some utility functions
+--------------------------------------------------------------------------------
+
+--
+-- Showing CReals
+--
 
 -- | Return a string representing a decimal number within 2^-p of the value
 -- represented by the given @CReal p@.
@@ -129,6 +149,10 @@ rationalToDecimal places r = s
                  _ -> '.' : take places (fs ++ repeat '0')
         s = is' ++ suff
 
+--
+-- Integer operations
+--
+
 -- | Division rounding to the nearest integer and rounding half integers to the
 -- nearest even integer.
 (/.) :: Integer -> Integer -> Integer
@@ -141,4 +165,19 @@ log2 x = I# (integerLog2# x)
 -- | @log10 x@ returns the base 10 logarithm of @x@ rounded towards zero.
 log10 :: Integer -> Int
 log10 x = I# (integerLogBase# 10 x)
+
+--
+-- Searching
+--
+
+-- | Given a monotonic function
+findFirstMonotonic :: (Int -> Bool) -> Int
+findFirstMonotonic p = binarySearch l' u'
+  where (l', u') = findBounds 0 1
+        findBounds l u = if p u then (l, u)
+                                else findBounds u (u*2)
+        binarySearch l u = let m = l + ((u - l) `div` 2)
+                           in if | l+1 == u  -> l
+                                 | p m       -> binarySearch l m
+                                 | otherwise -> binarySearch m u
 

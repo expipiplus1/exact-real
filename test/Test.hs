@@ -11,7 +11,7 @@ import Test.Tasty.QuickCheck (Arbitrary(..), Positive(..), testProperty)
 import Data.CReal.Internal
 import Data.CReal.Extra ()
 
-import Num (num)
+import Fractional (fractional)
 
 -- How many binary digits to use for comparisons TODO: Test with many different
 -- precisions
@@ -25,9 +25,9 @@ infixr 1 ==>
 False ==> _ = True
 True ==> b = b
 
-{-# ANN test_num "HLint: ignore Use camelCase" #-}
-test_num :: [TestTree]
-test_num = [num (undefined :: CReal Precision)]
+{-# ANN test_fractional "HLint: ignore Use camelCase" #-}
+test_fractional :: [TestTree]
+test_fractional = [fractional (undefined :: CReal Precision)]
 
 prop_decimalDigits :: Positive Int -> Bool
 prop_decimalDigits (Positive p) = let d = decimalDigitsAtPrecision p

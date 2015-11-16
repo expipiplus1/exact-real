@@ -8,6 +8,7 @@ module Test.QuickCheck.Classes.Extra
   , abelian
   , ring
   , commutativeRing
+  , field
   ) where
 
 import Data.Group (invert, Group, Abelian)
@@ -58,3 +59,10 @@ commutativeRing :: forall a. (Arbitrary a, EqProp a, Num a, Show a) => String ->
 commutativeRing s _ = testGroup s ts
   where ts = [ring "ring" (undefined :: a),
              testProperty "* commutes" (commutes ((*) :: a -> a -> a))]
+
+field :: forall a. (Arbitrary a, EqProp a, Fractional a, Show a, Ord a) => String -> a -> TestTree
+field s _ = testGroup s ts
+  where ts = [abelian "Abelian under Sum" (undefined :: Sum a),
+              abelian "Abelian under Product NonZero" (undefined :: Product (NonZero a)),
+              distributes "* distributes over +" (*) ((+) :: a -> a -> a)]
+

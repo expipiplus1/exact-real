@@ -1,0 +1,62 @@
+name:                exact-real
+version:             0.1.0.0
+synopsis:            Exact real arithmetic
+description:         please see readme.md
+license:             MIT
+license-file:        LICENSE
+author:              Joe Hermaszewski
+maintainer:          keep.it.real@monoid.al
+copyright:           2015 Joe Hermaszewski
+category:            Math
+build-type:          Simple
+extra-source-files:
+  .gitignore
+  readme.md
+cabal-version:       >=1.10
+
+library
+  exposed-modules:
+    Data.CReal
+    Data.CReal.Internal
+  build-depends:
+    base >=4.8 && <4.9,
+    integer-gmp < 1.1.0.0
+  hs-source-dirs:
+    src
+  default-language:
+    Haskell2010
+  ghc-options:
+    -Wall
+
+test-suite test
+  default-language:
+    Haskell2010
+  type:
+    exitcode-stdio-1.0
+  ghc-options:
+    -Wall -threaded
+  hs-source-dirs:
+    test
+  main-is:
+    Test.hs
+  other-modules:
+    Num,
+    Data.CReal.Extra,
+    Data.Monoid.Extra,
+    Test.QuickCheck.Classes.Extra
+    Test.QuickCheck.Extra
+    Test.Tasty.Extra
+  build-depends:
+    base             >= 4    && < 5,
+    groups           >= 0.3  && < 0.5,
+    tasty            >= 0.10 && < 0.12,
+    tasty-th         >= 0.1  && < 0.2,
+    tasty-quickcheck >= 0.8  && < 0.9,
+    QuickCheck       >= 2.8  && < 2.9,
+    checkers         >= 0.4  && < 0.5,
+    random           >= 1.0  && < 1.2,
+    exact-real
+
+source-repository head
+  type: git
+  location: https://github.com/expipiplus1/exact-real

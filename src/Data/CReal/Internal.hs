@@ -66,6 +66,9 @@ instance KnownNat n => Show (CReal n) where
 --
 -- >>> signum (0.1 :: CReal 2)
 -- 0.0
+--
+-- >>> signum (0.1 :: CReal 3)
+-- 1.0
 instance Num (CReal n) where
   fromInteger i = CR (\p -> i * 2 ^ p)
 

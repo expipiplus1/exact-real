@@ -20,6 +20,10 @@ type Precision = 10
 instance Arbitrary (CReal n) where
   arbitrary = fromInteger <$> arbitrary
 
+infixr 1 ==>
+(==>) :: Bool -> Bool -> Bool
+False ==> _ = True
+True ==> b = b
 
 {-# ANN test_num "HLint: ignore Use camelCase" #-}
 test_num :: [TestTree]
@@ -27,7 +31,8 @@ test_num = [num (undefined :: CReal Precision)]
 
 prop_decimalDigits :: Positive Int -> Bool
 prop_decimalDigits (Positive p) = let d = decimalDigitsAtPrecision p
-                                  in 10^d >= (2^p :: Integer)
+                                  in 10^d >= (2^p :: Integer) &&
+                                     (d > 0 ==> 10^(d-1) < (2^p :: Integer))
 
 prop_showIntegral :: Integer -> Bool
 prop_showIntegral i = show i == show (fromInteger i :: CReal 0)

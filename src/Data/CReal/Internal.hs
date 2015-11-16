@@ -62,7 +62,8 @@ instance KnownNat n => Show (CReal n) where
 -- the distance between @x@ and zero is less than 2^-@p@.
 --
 -- This is a little bit of a fudge, but it's probably better than failing to
--- terminate when trying to find the sign of zero.
+-- terminate when trying to find the sign of zero. The class still respects the
+-- abs-signum law though.
 --
 -- >>> signum (0.1 :: CReal 2)
 -- 0.0

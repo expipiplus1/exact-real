@@ -1,17 +1,21 @@
 name:                exact-real
 version:             0.7.1.0
 synopsis:            Exact real arithmetic
-description:         please see readme.md
+description:
+  A type to represent exact real number using a fast binary Cauchy sequence
 license:             MIT
 license-file:        LICENSE
 author:              Joe Hermaszewski
-maintainer:          keep.it.real@monoid.al
+maintainer:          Joe Hermaszewski <keep.it.real@monoid.al>
+homepage:            http://github.com/expipiplus1/exact-real
+bug-reports:         http://github.com/expipiplus1/exact-real/issues
 copyright:           2015 Joe Hermaszewski
 category:            Math
 build-type:          Simple
 extra-source-files:
   .gitignore
   readme.md
+  stack.yaml
 cabal-version:       >=1.10
 
 library
@@ -86,3 +90,5 @@ test-suite doctest
 source-repository head
   type: git
   location: https://github.com/expipiplus1/exact-real
+
+

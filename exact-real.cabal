@@ -47,6 +47,7 @@ test-suite test
     Fractional,
     Num,
     Ord,
+    Read,
     Real,
     RealFrac,
     Test.QuickCheck.Classes.Extra

@@ -14,6 +14,7 @@ import Data.CReal.Extra ()
 
 import Floating (floating)
 import Ord (ord)
+import Read (read')
 import Real (real)
 import RealFrac (realFrac)
 
@@ -41,6 +42,10 @@ test_real = [ real (\x -> 1 % toInteger (crealPrecision (x::CReal Precision))) ]
 {-# ANN test_realFrac "HLint: ignore Use camelCase" #-}
 test_realFrac :: [TestTree]
 test_realFrac = [ realFrac (undefined :: CReal Precision) ]
+
+{-# ANN test_read "HLint: ignore Use camelCase" #-}
+test_read :: [TestTree]
+test_read = [ read' (undefined :: CReal Precision) ]
 
 prop_decimalDigits :: Positive Int -> Bool
 prop_decimalDigits (Positive p) = let d = decimalDigitsAtPrecision p

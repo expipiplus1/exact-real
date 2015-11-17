@@ -42,6 +42,7 @@ import Data.Ratio (numerator,denominator,(%))
 import GHC.Base (Int(..))
 import GHC.Integer.Logarithms (integerLog2#, integerLogBase#)
 import GHC.TypeLits
+import Numeric (readSigned, readFloat)
 
 -- $setup
 -- >>> :set -XDataKinds
@@ -79,6 +80,9 @@ atPrecision :: CReal n -> Int -> Integer
 -- "47176870"
 instance KnownNat n => Show (CReal n) where
   show x = showAtPrecision (crealPrecision x) x
+
+instance KnownNat n => Read (CReal n) where
+  readsPrec _ = readSigned readFloat
 
 -- | @signum (x :: CReal p)@ returns the sign of @x@ at precision @p@. It's
 -- important to remember that this /may not/ represent the actual sign of @x@ if

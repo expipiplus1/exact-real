@@ -120,6 +120,8 @@ instance KnownNat n => Eq (CReal n) where
 instance KnownNat n => Ord (CReal n) where
   compare x y = let p = crealPrecision x
                 in compare ((x - y) `atPrecision` p) 0
+  max (CR x) (CR y) = CR (\p -> max (x p) (y p))
+  min (CR x) (CR y) = CR (\p -> min (x p) (y p))
 
 --------------------------------------------------------------------------------
 -- Some utility functions

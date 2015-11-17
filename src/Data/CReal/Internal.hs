@@ -199,6 +199,11 @@ instance KnownNat n => Real (CReal n) where
   toRational x = let p = crealPrecision x
                  in x `atPrecision` p % 2^p
 
+instance KnownNat n => RealFrac (CReal n) where
+  properFraction x = let n = x `atPrecision` 0
+                         f = x - fromIntegral n
+                     in (fromInteger n, f)
+
 -- | Values of type @CReal p@ are compared for equality at precision @p@. This
 -- may cause values which differ by less than 2^-p to compare as equal.
 --

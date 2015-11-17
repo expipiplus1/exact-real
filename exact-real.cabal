@@ -1,5 +1,5 @@
 name:                exact-real
-version:             0.5.0.0
+version:             0.6.0.0
 synopsis:            Exact real arithmetic
 description:         please see readme.md
 license:             MIT
@@ -48,6 +48,7 @@ test-suite test
     Num,
     Ord,
     Real,
+    RealFrac,
     Test.QuickCheck.Classes.Extra
     Test.QuickCheck.Extra
     Test.Tasty.Extra

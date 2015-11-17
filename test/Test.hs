@@ -15,6 +15,7 @@ import Data.CReal.Extra ()
 import Floating (floating)
 import Ord (ord)
 import Real (real)
+import RealFrac (realFrac)
 
 -- How many binary digits to use for comparisons TODO: Test with many different
 -- precisions
@@ -36,6 +37,10 @@ test_ord = [ ord (undefined :: CReal Precision) ]
 {-# ANN test_real "HLint: ignore Use camelCase" #-}
 test_real :: [TestTree]
 test_real = [ real (\x -> 1 % toInteger (crealPrecision (x::CReal Precision))) ]
+
+{-# ANN test_realFrac "HLint: ignore Use camelCase" #-}
+test_realFrac :: [TestTree]
+test_realFrac = [ realFrac (undefined :: CReal Precision) ]
 
 prop_decimalDigits :: Positive Int -> Bool
 prop_decimalDigits (Positive p) = let d = decimalDigitsAtPrecision p

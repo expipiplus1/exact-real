@@ -1,30 +1,34 @@
-name:                exact-real
-version:             0.7.1.0
-synopsis:            Exact real arithmetic
+name:         exact-real
+version:      0.7.1.0
+synopsis:     Exact real arithmetic
 description:
   A type to represent exact real number using a fast binary Cauchy sequence
-license:             MIT
-license-file:        LICENSE
-author:              Joe Hermaszewski
-maintainer:          Joe Hermaszewski <keep.it.real@monoid.al>
-homepage:            http://github.com/expipiplus1/exact-real
-bug-reports:         http://github.com/expipiplus1/exact-real/issues
-copyright:           2015 Joe Hermaszewski
-category:            Math
-build-type:          Simple
+license:      MIT
+license-file: LICENSE
+author:       Joe Hermaszewski
+maintainer:   Joe Hermaszewski <keep.it.real@monoid.al>
+homepage:     http://github.com/expipiplus1/exact-real
+bug-reports:  http://github.com/expipiplus1/exact-real/issues
+copyright:    2015 Joe Hermaszewski
+category:     Math
+build-type:   Simple
 extra-source-files:
   .gitignore
   readme.md
   stack.yaml
 cabal-version:       >=1.10
 
+source-repository head
+  type: git
+  location: https://github.com/expipiplus1/exact-real
+
 library
   exposed-modules:
     Data.CReal
     Data.CReal.Internal
   build-depends:
-    base >=4.8 && <4.9,
-    integer-gmp < 1.1.0.0
+    base        >= 4.8 && < 4.9,
+    integer-gmp           < 1.1.0.0
   hs-source-dirs:
     src
   default-language:
@@ -86,9 +90,4 @@ test-suite doctest
     directory >= 1.0 && < 1.3,
     doctest   >= 0.8 && < 0.11,
     filepath  >= 1.3 && < 1.5
-
-source-repository head
-  type: git
-  location: https://github.com/expipiplus1/exact-real
-
 

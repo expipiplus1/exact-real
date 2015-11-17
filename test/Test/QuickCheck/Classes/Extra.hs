@@ -64,13 +64,15 @@ commutativeRing s _ = testGroup s ts
   where ts = [ring "ring" (undefined :: a),
              testProperty "* commutes" (commutes ((*) :: a -> a -> a))]
 
+-- TODO: Reduce the Ord constraint to an Eq constraint on the new quickcheck
+-- release
 field :: forall a. (Arbitrary a, EqProp a, Fractional a, Show a, Ord a) => String -> a -> TestTree
 field s _ = testGroup s ts
   where ts = [abelian "Abelian under Sum" (undefined :: Sum a),
               abelian "Abelian under Product NonZero" (undefined :: Product (NonZero a)),
               distributes "* distributes over +" (*) ((+) :: a -> a -> a)]
 
-complement :: forall a. (Arbitrary a, EqProp a, Show a, Ord a) =>
+complement :: forall a. (Arbitrary a, EqProp a, Show a) =>
               String -> (a -> Gen a) -> BinRel a -> BinRel a -> TestTree
 complement s gen r1 r2 = testGroup s ts
   where ts = [testProperty "strictOrd"

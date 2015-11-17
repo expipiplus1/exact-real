@@ -14,7 +14,11 @@ import Test.Tasty (testGroup, TestTree)
 import Test.Tasty.QuickCheck (testProperty)
 import Num (numAuxTests)
 
-fractional :: forall a. (Arbitrary a, EqProp a, Show a, Fractional a, Ord a) => a -> TestTree
+-- TODO: Reduce Ord to Eq on the new quickcheck release
+-- TODO: Write a program to email me for todo's like that when the conditions
+-- are met
+fractional :: forall a. (Arbitrary a, EqProp a, Show a, Fractional a, Ord a) =>
+              a -> TestTree
 fractional _ = testGroup "Test Fractional instance" ts
   where
     ts = [ field "field" (undefined :: a)

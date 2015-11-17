@@ -6,7 +6,7 @@ module Main (main) where
 
 import Test.Tasty (testGroup, TestTree)
 import Test.Tasty.TH (defaultMainGenerator)
-import Test.Tasty.QuickCheck (Arbitrary(..), Positive(..), testProperty)
+import Test.Tasty.QuickCheck (Positive(..), testProperty)
 
 import Data.CReal.Internal
 import Data.CReal.Extra ()
@@ -16,9 +16,6 @@ import Fractional (fractional)
 -- How many binary digits to use for comparisons TODO: Test with many different
 -- precisions
 type Precision = 10
-
-instance Arbitrary (CReal n) where
-  arbitrary = fromInteger <$> arbitrary
 
 infixr 1 ==>
 (==>) :: Bool -> Bool -> Bool
@@ -39,3 +36,4 @@ prop_showIntegral i = show i == show (fromInteger i :: CReal 0)
 
 main :: IO ()
 main = $(defaultMainGenerator)
+

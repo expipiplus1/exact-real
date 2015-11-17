@@ -208,13 +208,12 @@ instance KnownNat n => RealFrac (CReal n) where
                          f = x - fromIntegral n
                      in (fromInteger n, f)
 
--- | Several of the functions in this class only make sense for floats
--- represented by a mantissa and exponent. These are bound to error.
+-- | Several of the functions in this class ('floatDigits', 'floatRange',
+-- 'exponent', 'significand') only make sense for floats represented by a
+-- mantissa and exponent. These are bound to error.
 --
--- - 'floatDigits'
--- - 'floatRange'
--- - 'exponent'
--- - 'significand'
+-- @atan2 y x `atPrecision` p@ performs the comparison to determine the
+-- quadrant at precision p. This can cause atan2 to be slightly slower than atan
 instance KnownNat n => RealFloat (CReal n) where
   floatRadix _ = 2
   floatDigits _ = error "Data.CReal.Internal floatDigits"
@@ -230,14 +229,17 @@ instance KnownNat n => RealFloat (CReal n) where
   isDenormalized _ = False
   isNegativeZero _ = False
   isIEEE _ = False
-  atan2 y x
-      | x > 0            =  atan (y/x)
-      | x == 0 && y > 0  =  pi/2
-      | x <  0 && y > 0  =  pi + atan (y/x)
-      | x <= 0 && y < 0  = -atan2 (-y) x
-      | y == 0 && x < 0  =  pi    -- must be after the previous test on zero y
-      | x==0 && y==0     =  y     -- must be after the other double zero tests
-      | otherwise        =  error "Data.CReal.Internal atan2"
+  atan2 y x = CR (\p ->
+    let y' = y `atPrecision` p
+        x' = x `atPrecision` p
+        θ = if | x' > 0            ->  atan (y/x)
+               | x' == 0 && y' > 0 ->  pi/2
+               | x' <  0 && y' > 0 ->  pi + atan (y/x)
+               | x' <= 0 && y' < 0 -> -atan2 (-y) x
+               | y' == 0 && x' < 0 ->  pi    -- must be after the previous test on zero y
+               | x'==0 && y'==0    ->  0     -- must be after the other double zero tests
+               | otherwise         ->  error "Data.CReal.Internal atan2"
+    in θ `atPrecision` p)
 
 -- | Values of type @CReal p@ are compared for equality at precision @p@. This
 -- may cause values which differ by less than 2^-p to compare as equal.

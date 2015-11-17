@@ -303,17 +303,16 @@ decimalDigitsAtPrecision p = log10 (2^p) + 1
 -- | @rationalToDecimal p x@ returns a string representing @x@ at @p@ decimal
 -- places.
 rationalToDecimal :: Int -> Rational -> String
-rationalToDecimal places r = s
-  where ds = show ((numerator r * 10^places) /. denominator r)
-        (is, fs) = splitAt (length ds - places) ds
-        is' = case is of
-                ""  -> "0"
-                "-" -> "-0"
-                _   -> is
-        suff = case places of
-                 0 -> ""
-                 _ -> '.' : take places (fs ++ repeat '0')
-        s = is' ++ suff
+rationalToDecimal places r = p ++ is ++ if places > 0 then "." ++ fs else ""
+  where r' = abs r
+        p = case signum r of
+              -1 -> "-"
+              _  -> ""
+        ds = show ((numerator r' * 10^places) /. denominator r')
+        l = length ds
+        (is, fs) = if | l <= places -> ("0", replicate (places - l) '0' ++ ds)
+                      | otherwise -> splitAt (length ds - places) ds
+
 
 --
 -- Integer operations

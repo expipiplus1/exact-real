@@ -45,6 +45,11 @@ prop_shiftL x s = x `shiftL` s === x * 2 ** fromIntegral s
 prop_shiftR :: CReal Precision -> Int -> Property
 prop_shiftR x s = x `shiftR` s === x / 2 ** fromIntegral s
 
+prop_showNumDigits :: Positive Int -> Rational -> Property
+prop_showNumDigits (Positive places) x =
+  let s = rationalToDecimal places x
+  in length (dropWhile (/= '.') s) === places + 1
+
 main :: IO ()
 main = $(defaultMainGenerator)
 

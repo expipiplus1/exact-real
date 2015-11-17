@@ -42,6 +42,7 @@ test-suite test
   other-modules:
     Fractional,
     Num,
+    Ord,
     Data.CReal.Extra,
     Data.Monoid.Extra,
     Test.QuickCheck.Classes.Extra

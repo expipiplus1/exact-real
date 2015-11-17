@@ -9,6 +9,7 @@ module Test.QuickCheck.Extra
   , UnitInterval(..)
   , BiunitInterval(..)
   , Tiny(..)
+  , (<=>)
   ) where
 
 import Test.QuickCheck (Arbitrary(..), choose, suchThat)
@@ -44,5 +45,5 @@ tinyBound = 1000000000
 instance (Num a, Ord a, Arbitrary a) => Arbitrary (Tiny a) where
   arbitrary = Tiny <$> arbitrary `suchThat` ((< tinyBound) . abs)
 
-
-
+(<=>) :: Bool -> Bool -> Bool
+(<=>) = (==)

@@ -12,6 +12,7 @@ import Data.CReal.Internal
 import Data.CReal.Extra ()
 
 import Fractional (fractional)
+import Ord (ord)
 
 -- How many binary digits to use for comparisons TODO: Test with many different
 -- precisions
@@ -25,6 +26,10 @@ True ==> b = b
 {-# ANN test_fractional "HLint: ignore Use camelCase" #-}
 test_fractional :: [TestTree]
 test_fractional = [fractional (undefined :: CReal Precision)]
+
+{-# ANN test_ord "HLint: ignore Use camelCase" #-}
+test_ord :: [TestTree]
+test_ord = [ ord (undefined :: CReal Precision) ]
 
 prop_decimalDigits :: Positive Int -> Bool
 prop_decimalDigits (Positive p) = let d = decimalDigitsAtPrecision p

@@ -1,25 +1,29 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 -- | Add a bunch of checkers for testing properties of different algebraic
--- structures
+-- structures and relations
 module Test.QuickCheck.Classes.Extra
   ( module Test.QuickCheck.Classes
+  -- | Algebraic structures
   , group
   , abelian
   , ring
   , commutativeRing
   , field
+
+  -- | Relations
+  , complement
   ) where
 
 import Data.Group (invert, Group, Abelian)
 import Data.Monoid ((<>), Sum(..), Product)
 import Data.Monoid.Extra ()
-import Test.QuickCheck.Extra (Arbitrary)
+import Test.QuickCheck.Extra (Arbitrary, (<=>))
 import Test.QuickCheck.Modifiers (NonZero)
-import Test.QuickCheck.Checkers (commutes, EqProp, (=-=))
+import Test.QuickCheck.Checkers (commutes, EqProp, (=-=), BinRel)
 import Test.QuickCheck.Classes
 import Test.Tasty.Extra (testGroup, TestTree, testTreeFromBatch, testTreeFromNamedBatch)
-import Test.Tasty.QuickCheck (testProperty, Property)
+import Test.Tasty.QuickCheck (testProperty, Property, Gen, property, forAll)
 
 distributesL :: EqProp a => (a -> a -> a) -> (a -> a -> a) -> a -> a -> a -> Property
 distributesL (*:) (+:) a b c = a *: (b +: c) =-= (a *: b) +: (a *: c)
@@ -66,3 +70,11 @@ field s _ = testGroup s ts
               abelian "Abelian under Product NonZero" (undefined :: Product (NonZero a)),
               distributes "* distributes over +" (*) ((+) :: a -> a -> a)]
 
+complement :: forall a. (Arbitrary a, EqProp a, Show a, Ord a) =>
+              String -> (a -> Gen a) -> BinRel a -> BinRel a -> TestTree
+complement s gen r1 r2 = testGroup s ts
+  where ts = [testProperty "strictOrd"
+              (property $ \ a ->
+               forAll (gen a) $ \ b ->
+               a `r1` b <=> not (a `r2` b))
+             ]

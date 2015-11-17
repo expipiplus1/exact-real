@@ -194,6 +194,11 @@ instance Floating (CReal n) where
   acosh x = log (x + sqrt (x + 1) * sqrt (x - 1))
   atanh x = (log (1 + x) - log (1 - x)) / 2
 
+-- | 'toRational' returns the CReal n evaluated at a precision of 2^-n
+instance KnownNat n => Real (CReal n) where
+  toRational x = let p = crealPrecision x
+                 in x `atPrecision` p % 2^p
+
 -- | Values of type @CReal p@ are compared for equality at precision @p@. This
 -- may cause values which differ by less than 2^-p to compare as equal.
 --

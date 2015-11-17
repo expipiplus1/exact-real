@@ -4,15 +4,17 @@
 
 module Main (main) where
 
+import Data.Ratio ((%))
 import Test.Tasty (testGroup, TestTree)
-import Test.Tasty.TH (defaultMainGenerator)
 import Test.Tasty.QuickCheck (Positive(..), testProperty, (===), Property)
+import Test.Tasty.TH (defaultMainGenerator)
 
 import Data.CReal.Internal
 import Data.CReal.Extra ()
 
 import Floating (floating)
 import Ord (ord)
+import Real (real)
 
 -- How many binary digits to use for comparisons TODO: Test with many different
 -- precisions
@@ -30,6 +32,10 @@ test_floating = [floating (undefined :: CReal Precision)]
 {-# ANN test_ord "HLint: ignore Use camelCase" #-}
 test_ord :: [TestTree]
 test_ord = [ ord (undefined :: CReal Precision) ]
+
+{-# ANN test_real "HLint: ignore Use camelCase" #-}
+test_real :: [TestTree]
+test_real = [ real (\x -> 1 % toInteger (crealPrecision (x::CReal Precision))) ]
 
 prop_decimalDigits :: Positive Int -> Bool
 prop_decimalDigits (Positive p) = let d = decimalDigitsAtPrecision p

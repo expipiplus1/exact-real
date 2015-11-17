@@ -1,23 +1,37 @@
+{-# LANGUAGE DataKinds #-}
+{-# LANGUAGE KindSignatures #-}
 {-# LANGUAGE MagicHash #-}
 {-# LANGUAGE MultiWayIf #-}
-{-# LANGUAGE KindSignatures #-}
-{-# LANGUAGE DataKinds #-}
+{-# LANGUAGE PostfixOperators #-}
 
 module Data.CReal.Internal
   ( CReal(..)
   , atPrecision
   , crealPrecision
 
+  , expBounded
+  , logBounded
+
+  , atanBounded
+  , sinBounded
+  , cosBounded
+
   , shiftL
   , shiftR
+
+  , powerSeries
 
   , (/.)
   , log2
   , log10
+  , isqrt
+
+  , showAtPrecision
   , decimalDigitsAtPrecision
   , rationalToDecimal
   ) where
 
+import Data.List (scanl')
 import Data.Ratio (numerator,denominator,(%))
 import GHC.Base (Int(..))
 import GHC.Integer.Logarithms (integerLog2#, integerLogBase#)
@@ -106,6 +120,74 @@ instance Fractional (CReal n) where
                                n = x (p + 2 * s + 2)
                            in 2^(2 * p + 2 * s + 2) /. n)
 
+instance Floating (CReal n) where
+  -- TODO: Could we use something faster such as Ramanujan's formula
+  pi = 4 * piBy4
+
+  exp x = let CR o = x / ln2
+              l = o 0
+              y = x - fromInteger l * ln2
+          in if l == 0
+               then expBounded x
+               else expBounded y `shiftL` fromInteger l
+
+  -- | Range reduction on the principle that ln (a * b) = ln a + ln b
+  log x = let CR o = x
+              l = log2 (o 2) - 2
+              a = x `shiftR` l
+          in if | l < 0  -> - log (recip x)
+                | l == 0 -> logBounded x
+                | l > 0  -> logBounded a + fromIntegral l * ln2
+
+  sqrt (CR x) = CR (\p -> let n = x (2 * p)
+                          in isqrt n)
+
+  -- | This will diverge when the base is not positive
+  x ** y = exp (log x * y)
+
+  logBase x y = log y / log x
+
+  sin x = cos (x - pi / 2)
+
+  cos x = let CR o = x / piBy4
+              s = o 1 /. 2
+              octant = fromInteger $ s `mod` 8
+              offset = x - (fromIntegral s * piBy4)
+              fs = [          cosBounded
+                   , negate . sinBounded . subtract piBy4
+                   , negate . sinBounded
+                   , negate . cosBounded . (piBy4-)
+                   , negate . cosBounded
+                   ,          sinBounded . subtract piBy4
+                   ,          sinBounded
+                   ,          cosBounded . (piBy4-)]
+          in (fs !! octant) offset
+
+  -- TODO: use multiplyBounded here
+  tan x = sin x / cos x
+
+  asin x = 2 * atan (x / (1 + sqrt (1 - x*x)))
+
+  acos x = pi/2 - asin x
+
+  atan x = let -- q is x to the nearest 1/4
+               q = x `atPrecision` 2
+           in if | q <  -4 -> atanBounded (negate (recip x)) - pi / 2
+                 | q == -4 -> -pi / 4 - atanBounded ((x + 1) / (x - 1))
+                 | q ==  4 -> pi / 4 + atanBounded ((x - 1) / (x + 1))
+                 | q >   4 -> pi / 2 - atanBounded (recip x)
+                 | otherwise -> atanBounded x
+
+  -- TODO: benchmark replacing these with their series expansion
+  sinh x = (exp x - exp (-x)) / 2
+  cosh x = (exp x + exp (-x)) / 2
+  tanh x = let e2x = exp (2 * x)
+           in (e2x - 1) / (e2x + 1)
+
+  asinh x = log (x + sqrt (x * x + 1))
+  acosh x = log (x + sqrt (x + 1) * sqrt (x - 1))
+  atanh x = (log (1 + x) - log (1 - x)) / 2
+
 -- | Values of type @CReal p@ are compared for equality at precision @p@. This
 -- may cause values which differ by less than 2^-p to compare as equal.
 --
@@ -126,6 +208,51 @@ instance KnownNat n => Ord (CReal n) where
 --------------------------------------------------------------------------------
 -- Some utility functions
 --------------------------------------------------------------------------------
+
+--
+-- Constants
+--
+
+piBy4 :: CReal n
+piBy4 = 4 * atanBounded (1/5) - atanBounded (1 / 239) -- Machin Formula
+
+ln2 :: CReal n
+ln2 = logBounded 2
+
+--
+-- Bounded exponential functions
+--
+
+-- | The input to expBounded must be in the range (-1..1)
+expBounded :: CReal n -> CReal n
+expBounded x = let q = [1 % (n!) | n <- [0..]]
+               in powerSeries q (max 5) x
+
+-- | The input must be in [1..2]
+logBounded :: CReal n -> CReal n
+logBounded x = let q = [1 % n | n <- [1..]]
+                   y = (x - 1) / x
+               in y * powerSeries q (*2) y
+
+--
+-- Bounded trigonometric functions
+--
+
+-- | The input to sinBounded must be in (-1..1)
+sinBounded :: CReal n -> CReal n
+sinBounded x = let q = alternateSign (scanl' (*) 1 [ 1 % (n*(n+1)) | n <- [2,4..]])
+               in x * powerSeries q (max 1) (x*x)
+
+-- | The input to cosBounded must be in (-1..1)
+cosBounded :: CReal n -> CReal n
+cosBounded x = let q = alternateSign (scanl' (*) 1 [1 % (n*(n+1)) | n <- [1,3..]])
+               in powerSeries q (max 1) (x*x)
+
+-- | The input to atanBounded must be in [-1..1]
+atanBounded :: CReal n -> CReal n
+atanBounded x = let q = scanl' (*) 1 [n % (n + 1) | n <- [2,4..]]
+                    d = 1 + x * x
+                in CR (\p -> ((x/d) * powerSeries q (+1) (x*x/d)) `atPrecision` p)
 
 --
 -- Multiplication with powers of two
@@ -199,6 +326,19 @@ log2 x = I# (integerLog2# x)
 log10 :: Integer -> Int
 log10 x = I# (integerLogBase# 10 x)
 
+isqrt :: Integer -> Integer
+isqrt x | x < 0     = error "Sqrt applied to negative Integer"
+        | x == 0    = 0
+        | otherwise = until satisfied improve initialGuess
+  where improve r    = (r + (x `div` r)) `div` 2
+        satisfied r  = sq r <= x && sq (r + 1) > x
+        initialGuess = 2 ^ (log2 x `div` 2)
+        sq r         = r * r
+
+-- | Factorial function
+(!) :: Integer -> Integer
+(!) x = product [2..x]
+
 --
 -- Searching
 --
@@ -213,4 +353,23 @@ findFirstMonotonic p = binarySearch l' u'
                            in if | l+1 == u  -> l
                                  | p m       -> binarySearch l m
                                  | otherwise -> binarySearch m u
+
+
+--
+-- Power series
+--
+
+alternateSign :: Num a => [a] -> [a]
+alternateSign = zipWith ($) (cycle [id, negate])
+
+powerSeries :: [Rational] -> (Int -> Int) -> CReal n -> CReal n
+powerSeries q termsAtPrecision (CR x) =
+  CR (\p -> let t = termsAtPrecision p
+                d = log2 (toInteger t) + 2
+                p' = p + d
+                p'' = p' + d
+                m = x p''
+                xs = (%1) <$> iterate (\e -> m * e /. 2^p'') (2^p')
+                r = sum . take (t + 1) . fmap (round . (* (2^d))) $ zipWith (*) q xs
+            in r /. 4^d)
 

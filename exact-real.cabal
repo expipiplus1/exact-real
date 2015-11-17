@@ -1,5 +1,5 @@
 name:                exact-real
-version:             0.2.1.0
+version:             0.3.0.0
 synopsis:            Exact real arithmetic
 description:         please see readme.md
 license:             MIT
@@ -40,6 +40,7 @@ test-suite test
   main-is:
     Test.hs
   other-modules:
+    Floating,
     Fractional,
     Num,
     Ord,
@@ -54,6 +55,7 @@ test-suite test
     tasty            >= 0.10 && < 0.12,
     tasty-th         >= 0.1  && < 0.2,
     tasty-quickcheck >= 0.8  && < 0.9,
+    tasty-hunit      >= 0.9  && < 0.10,
     QuickCheck       >= 2.8  && < 2.9,
     checkers         >= 0.4  && < 0.5,
     random           >= 1.0  && < 1.2,

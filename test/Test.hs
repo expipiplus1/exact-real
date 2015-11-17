@@ -6,12 +6,12 @@ module Main (main) where
 
 import Test.Tasty (testGroup, TestTree)
 import Test.Tasty.TH (defaultMainGenerator)
-import Test.Tasty.QuickCheck (Positive(..), testProperty, (===), Property, NonNegative(..))
+import Test.Tasty.QuickCheck (Positive(..), testProperty, (===), Property)
 
 import Data.CReal.Internal
 import Data.CReal.Extra ()
 
-import Fractional (fractional)
+import Floating (floating)
 import Ord (ord)
 
 -- How many binary digits to use for comparisons TODO: Test with many different
@@ -23,9 +23,9 @@ infixr 1 ==>
 False ==> _ = True
 True ==> b = b
 
-{-# ANN test_fractional "HLint: ignore Use camelCase" #-}
-test_fractional :: [TestTree]
-test_fractional = [fractional (undefined :: CReal Precision)]
+{-# ANN test_floating "HLint: ignore Use camelCase" #-}
+test_floating :: [TestTree]
+test_floating = [floating (undefined :: CReal Precision)]
 
 {-# ANN test_ord "HLint: ignore Use camelCase" #-}
 test_ord :: [TestTree]
@@ -39,12 +39,11 @@ prop_decimalDigits (Positive p) = let d = decimalDigitsAtPrecision p
 prop_showIntegral :: Integer -> Property
 prop_showIntegral i = show i === show (fromInteger i :: CReal 0)
 
--- TODO: Drop the NonNegative constraint when Floating is implemented and use **
-prop_shiftL :: CReal Precision -> NonNegative Int -> Property
-prop_shiftL x (NonNegative s) = x `shiftL` s === x * 2^s
+prop_shiftL :: CReal Precision -> Int -> Property
+prop_shiftL x s = x `shiftL` s === x * 2 ** fromIntegral s
 
-prop_shiftR :: CReal Precision -> NonNegative Int -> Property
-prop_shiftR x (NonNegative s) = x `shiftR` s === x / 2^s
+prop_shiftR :: CReal Precision -> Int -> Property
+prop_shiftR x s = x `shiftR` s === x / 2 ** fromIntegral s
 
 main :: IO ()
 main = $(defaultMainGenerator)

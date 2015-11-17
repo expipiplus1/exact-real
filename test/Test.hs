@@ -6,7 +6,7 @@ module Main (main) where
 
 import Test.Tasty (testGroup, TestTree)
 import Test.Tasty.TH (defaultMainGenerator)
-import Test.Tasty.QuickCheck (Positive(..), testProperty, (===), Property)
+import Test.Tasty.QuickCheck (Positive(..), testProperty, (===), Property, NonNegative(..))
 
 import Data.CReal.Internal
 import Data.CReal.Extra ()
@@ -38,6 +38,13 @@ prop_decimalDigits (Positive p) = let d = decimalDigitsAtPrecision p
 
 prop_showIntegral :: Integer -> Property
 prop_showIntegral i = show i === show (fromInteger i :: CReal 0)
+
+-- TODO: Drop the NonNegative constraint when Floating is implemented and use **
+prop_shiftL :: CReal Precision -> NonNegative Int -> Property
+prop_shiftL x (NonNegative s) = x `shiftL` s === x * 2^s
+
+prop_shiftR :: CReal Precision -> NonNegative Int -> Property
+prop_shiftR x (NonNegative s) = x `shiftR` s === x / 2^s
 
 main :: IO ()
 main = $(defaultMainGenerator)

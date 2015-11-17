@@ -8,6 +8,9 @@ module Data.CReal.Internal
   , atPrecision
   , crealPrecision
 
+  , shiftL
+  , shiftR
+
   , (/.)
   , log2
   , log10
@@ -121,6 +124,30 @@ instance KnownNat n => Ord (CReal n) where
 --------------------------------------------------------------------------------
 -- Some utility functions
 --------------------------------------------------------------------------------
+
+--
+-- Multiplication with powers of two
+--
+
+-- | @x \`shiftR\` n@ is equal to @x@ divided by 2^@n@
+--
+-- @n@ can be negative or zero
+--
+-- This can be faster than doing the division
+shiftR :: CReal n -> Int -> CReal n
+shiftR (CR x) n = CR (\p -> let p' = p - n
+                            in if p' >= 0
+                                 then x p'
+                                 else x 0 /. 2^(-p'))
+
+-- | @x \`shiftL\` n@ is equal to @x@ multiplied by 2^@n@
+--
+-- @n@ can be negative or zero
+--
+-- This can be faster than doing the multiplication
+shiftL :: CReal n -> Int -> CReal n
+shiftL x = shiftR x . negate
+
 
 --
 -- Showing CReals

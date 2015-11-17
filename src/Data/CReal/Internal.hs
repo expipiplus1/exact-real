@@ -208,6 +208,37 @@ instance KnownNat n => RealFrac (CReal n) where
                          f = x - fromIntegral n
                      in (fromInteger n, f)
 
+-- | Several of the functions in this class only make sense for floats
+-- represented by a mantissa and exponent. These are bound to error.
+--
+-- - 'floatDigits'
+-- - 'floatRange'
+-- - 'exponent'
+-- - 'significand'
+instance KnownNat n => RealFloat (CReal n) where
+  floatRadix _ = 2
+  floatDigits _ = error "Data.CReal.Internal floatDigits"
+  floatRange _ = error "Data.CReal.Internal floatRange"
+  decodeFloat x = let p = crealPrecision x
+                  in (x `atPrecision` p, -p)
+  encodeFloat m n = fromRational (m % 2^(-n))
+  exponent = error "Data.CReal.Internal exponent"
+  significand = error "Data.CReal.Internal significand"
+  scaleFloat = flip shiftL
+  isNaN _ = False
+  isInfinite _ = False
+  isDenormalized _ = False
+  isNegativeZero _ = False
+  isIEEE _ = False
+  atan2 y x
+      | x > 0            =  atan (y/x)
+      | x == 0 && y > 0  =  pi/2
+      | x <  0 && y > 0  =  pi + atan (y/x)
+      | x <= 0 && y < 0  = -atan2 (-y) x
+      | y == 0 && x < 0  =  pi    -- must be after the previous test on zero y
+      | x==0 && y==0     =  y     -- must be after the other double zero tests
+      | otherwise        =  error "Data.CReal.Internal atan2"
+
 -- | Values of type @CReal p@ are compared for equality at precision @p@. This
 -- may cause values which differ by less than 2^-p to compare as equal.
 --

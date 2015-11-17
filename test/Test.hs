@@ -17,6 +17,7 @@ import Ord (ord)
 import Read (read')
 import Real (real)
 import RealFrac (realFrac)
+import RealFloat (realFloat)
 
 -- How many binary digits to use for comparisons TODO: Test with many different
 -- precisions
@@ -42,6 +43,10 @@ test_real = [ real (\x -> 1 % toInteger (crealPrecision (x::CReal Precision))) ]
 {-# ANN test_realFrac "HLint: ignore Use camelCase" #-}
 test_realFrac :: [TestTree]
 test_realFrac = [ realFrac (undefined :: CReal Precision) ]
+
+{-# ANN test_realFloat "HLint: ignore Use camelCase" #-}
+test_realFloat :: [TestTree]
+test_realFloat = [ realFloat (undefined :: CReal Precision) ]
 
 {-# ANN test_read "HLint: ignore Use camelCase" #-}
 test_read :: [TestTree]

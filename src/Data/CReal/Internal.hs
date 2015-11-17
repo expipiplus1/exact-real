@@ -4,6 +4,11 @@
 {-# LANGUAGE MultiWayIf #-}
 {-# LANGUAGE PostfixOperators #-}
 
+-----------------------------------------------------------------------------
+-- | This module exports a bunch of utilities for working inside the CReal
+-- datatype. One should be careful to maintain the CReal invariant when using
+-- these functions
+----------------------------------------------------------------------------
 module Data.CReal.Internal
   ( CReal(..)
   , atPrecision
@@ -20,6 +25,7 @@ module Data.CReal.Internal
   , shiftR
 
   , powerSeries
+  , alternateSign
 
   , (/.)
   , log2
@@ -45,7 +51,7 @@ infixl 7 /.
 default ()
 
 -- | The type CReal represents a fast binary Cauchy sequence. This is
--- a Cauchy sequence with the property that the pth element will be within
+-- a Cauchy sequence with the invariant that the pth element will be within
 -- 2^-p of the true value. Internally this sequence is represented as
 -- a function from Ints to Integers.
 newtype CReal (n :: Nat) = CR (Int -> Integer)
@@ -326,6 +332,7 @@ log2 x = I# (integerLog2# x)
 log10 :: Integer -> Int
 log10 x = I# (integerLogBase# 10 x)
 
+-- | @isqrt x@ returns the square root of @x@ rounded towards zero.
 isqrt :: Integer -> Integer
 isqrt x | x < 0     = error "Sqrt applied to negative Integer"
         | x == 0    = 0
@@ -359,9 +366,19 @@ findFirstMonotonic p = binarySearch l' u'
 -- Power series
 --
 
+-- | Apply 'negate' to every other element, starting with the second
+--
+-- >>> alternateSign [1..5]
+-- [1,-2,3,-4,5]
 alternateSign :: Num a => [a] -> [a]
 alternateSign = zipWith ($) (cycle [id, negate])
 
+-- | @powerSeries q f x `atPrecision` p@ will evaluate the power series with
+-- coefficients @q@ at precision @f p@ at @x@
+--
+-- @f@ should be a function such that the CReal invariant is maintained
+--
+-- See any of the trig functions for an example
 powerSeries :: [Rational] -> (Int -> Int) -> CReal n -> CReal n
 powerSeries q termsAtPrecision (CR x) =
   CR (\p -> let t = termsAtPrecision p

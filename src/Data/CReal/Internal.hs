@@ -51,6 +51,8 @@ import GHC.Integer.Logarithms (integerLog2#, integerLogBase#)
 import GHC.TypeLits
 import Numeric (readSigned, readFloat)
 
+{-# ANN module "HLint: ignore Reduce duplication" #-}
+
 -- $setup
 -- >>> :set -XDataKinds
 

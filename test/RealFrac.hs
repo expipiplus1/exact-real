@@ -25,9 +25,10 @@ properFractionLaws s _ = testGroup s ts
              , testProperty "n has same sign or is zero"
                             (\x -> let (n, _) = properFraction (x :: a)
                                    in n == 0 || sign x == sign (n::Int))
-             , testProperty "abs f < 1"
+             , testProperty "abs f < 1" -- Use a slightly different test here
+                                        -- to cope with CReal 0
                             (\x -> let (_::Int, f) = properFraction (x :: a)
-                                   in abs f < 1)
+                                   in abs f * 2 < 2)
              ]
 
 data Sign = Positive

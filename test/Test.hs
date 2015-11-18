@@ -6,7 +6,7 @@ module Main (main) where
 
 import Data.Ratio ((%))
 import Test.Tasty (testGroup, TestTree)
-import Test.Tasty.QuickCheck (Positive(..), testProperty, (===), Property)
+import Test.Tasty.QuickCheck (Positive(..), testProperty, (===), Property, (==>), (.&&.), testProperty)
 import Test.Tasty.TH (defaultMainGenerator)
 
 import Data.CReal.Internal
@@ -23,11 +23,6 @@ import RealFloat (realFloat)
 -- How many binary digits to use for comparisons TODO: Test with many different
 -- precisions
 type Precision = 10
-
-infixr 1 ==>
-(==>) :: Bool -> Bool -> Bool
-False ==> _ = True
-True ==> b = b
 
 {-# ANN test_floating "HLint: ignore Use camelCase" #-}
 test_floating :: [TestTree]
@@ -53,9 +48,9 @@ test_realFloat = [ realFloat (undefined :: CReal Precision) ]
 test_read :: [TestTree]
 test_read = [ read' (undefined :: CReal Precision) ]
 
-prop_decimalDigits :: Positive Int -> Bool
+prop_decimalDigits :: Positive Int -> Property
 prop_decimalDigits (Positive p) = let d = decimalDigitsAtPrecision p
-                                  in 10^d >= (2^p :: Integer) &&
+                                  in 10^d >= (2^p :: Integer) .&&.
                                      (d > 0 ==> 10^(d-1) < (2^p :: Integer))
 
 prop_showIntegral :: Integer -> Property

@@ -31,7 +31,7 @@ boundedFunctions _ = testGroup "bounded functions" ts
                     exp (x :: a) =-= expBounded x)
              , testProperty "logBounded"
                   (\(UnitInterval x) ->
-                    let x' = (x :: a) + 1
+                    let x' = (x :: a) * (2 - 2/3) + 2/3
                     in log x' =-= logBounded x')
              , testProperty "sinBounded"
                   (\(BiunitInterval x) ->

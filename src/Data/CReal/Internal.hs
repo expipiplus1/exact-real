@@ -156,10 +156,13 @@ instance Floating (CReal n) where
   -- | Range reduction on the principle that ln (a * b) = ln a + ln b
   log x = let CR o = x
               l = log2 (o 2) - 2
-              a = x `shiftR` l
-          in if | l < 0  -> - log (recip x)
+          in if   -- x <= 0.75
+                | l < 0  -> - log (recip x)
+                  -- 0.75 <= x <= 2
                 | l == 0 -> logBounded x
-                | l > 0  -> logBounded a + fromIntegral l * ln2
+                  -- x >= 2
+                | l > 0  -> let a = x `shiftR` l
+                            in logBounded a + fromIntegral l *. ln2
 
   sqrt (CR x) = CR (\p -> let n = x (2 * p)
                           in isqrt n)
@@ -185,19 +188,23 @@ instance Floating (CReal n) where
                    ,          cosBounded . (piBy4-)]
           in (fs !! octant) offset
 
-  -- TODO: use multiplyBounded here
-  tan x = sin x / cos x
+  tan x = sin x .* recip (cos x)
 
-  asin x = 2 * atan (x / (1 + sqrt (1 - x*x)))
+  asin x = 2 * atan (x .*. recipBounded (1 + sqrt (1 - x.*.x)))
 
   acos x = pi/2 - asin x
 
-  atan x = let -- q is x to the nearest 1/4
+  atan x = let -- q is 4 times x to within 1/4
                q = x `atPrecision` 2
-           in if | q <  -4 -> atanBounded (negate (recip x)) - pi / 2
-                 | q == -4 -> -pi / 4 - atanBounded ((x + 1) / (x - 1))
-                 | q ==  4 -> pi / 4 + atanBounded ((x - 1) / (x + 1))
-                 | q >   4 -> pi / 2 - atanBounded (recip x)
+           in if   -- x <= -1
+                 | q <  -4 -> atanBounded (negate (recipBounded x)) - pi / 2
+                   -- -1.25 <= x <= -0.75
+                 | q == -4 -> -pi / 4 - atanBounded ((x + 1) .*. recipBounded (x - 1))
+                   -- 0.75 <= x <= 1.25
+                 | q ==  4 -> pi / 4 + atanBounded ((x - 1) .*. recipBounded (x + 1))
+                   -- x >= 1
+                 | q >   4 -> pi / 2 - atanBounded (recipBounded x)
+                   -- -0.75 <= x <= 0.75
                  | otherwise -> atanBounded x
 
   -- TODO: benchmark replacing these with their series expansion
@@ -327,11 +334,11 @@ expBounded :: CReal n -> CReal n
 expBounded x = let q = [1 % (n!) | n <- [0..]]
                in powerSeries q (max 5) x
 
--- | The input must be in [1..2]
+-- | The input must be in [2/3..2]
 logBounded :: CReal n -> CReal n
 logBounded x = let q = [1 % n | n <- [1..]]
-                   y = (x - 1) / x
-               in y * powerSeries q (*2) y
+                   y = (x - 1) .* recip x
+               in y .* powerSeries q id y
 
 --
 -- Bounded trigonometric functions
@@ -340,12 +347,12 @@ logBounded x = let q = [1 % n | n <- [1..]]
 -- | The input to sinBounded must be in (-1..1)
 sinBounded :: CReal n -> CReal n
 sinBounded x = let q = alternateSign (scanl' (*) 1 [ 1 % (n*(n+1)) | n <- [2,4..]])
-               in x * powerSeries q (max 1) (x*x)
+               in x * powerSeries q (max 1) (x .*. x)
 
 -- | The input to cosBounded must be in (-1..1)
 cosBounded :: CReal n -> CReal n
 cosBounded x = let q = alternateSign (scanl' (*) 1 [1 % (n*(n+1)) | n <- [1,3..]])
-               in powerSeries q (max 1) (x*x)
+               in powerSeries q (max 1) (x .*. x)
 
 -- | The input to atanBounded must be in [-1..1]
 atanBounded :: CReal n -> CReal n

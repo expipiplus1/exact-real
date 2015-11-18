@@ -34,7 +34,7 @@ test_ord = [ ord (undefined :: CReal Precision) ]
 
 {-# ANN test_real "HLint: ignore Use camelCase" #-}
 test_real :: [TestTree]
-test_real = [ real (\x -> 1 % toInteger (crealPrecision (x::CReal Precision))) ]
+test_real = [ real (\x -> 1 % toInteger (max 1 (crealPrecision (x::CReal Precision)))) ]
 
 {-# ANN test_realFrac "HLint: ignore Use camelCase" #-}
 test_realFrac :: [TestTree]

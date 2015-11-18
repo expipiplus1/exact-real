@@ -105,10 +105,13 @@ instance KnownNat n => Read (CReal n) where
 -- >>> signum (0.1 :: CReal 3)
 -- 1.0
 instance Num (CReal n) where
+  {-# INLINE fromInteger #-}
   fromInteger i = CR (\p -> i * 2 ^ p)
 
+  {-# INLINE negate #-}
   negate (CR x) = CR (negate . x)
 
+  {-# INLINE abs #-}
   abs (CR x) = CR (abs . x)
 
   {-# INLINE (+) #-}

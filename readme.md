@@ -17,6 +17,8 @@ Compare evaluating Eulers identity with a `Float`:
 0.0 :+ (-8.742278e-8)
 ```
 
+... and with a `CReal`
+
 ``` haskell
 λ> import Data.CReal
 λ> let i = 0 :+ 1

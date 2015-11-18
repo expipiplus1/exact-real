@@ -1,5 +1,5 @@
 name:         exact-real
-version:      0.7.1.0
+version:      0.7.2.0
 synopsis:     Exact real arithmetic
 description:
   A type to represent exact real number using a fast binary Cauchy sequence
@@ -64,6 +64,7 @@ test-suite test
   main-is:
     Test.hs
   other-modules:
+    BoundedFunctions,
     Data.CReal.Extra,
     Data.Monoid.Extra,
     Data.Ratio.Extra,

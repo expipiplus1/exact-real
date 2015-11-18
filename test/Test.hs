@@ -12,6 +12,7 @@ import Test.Tasty.TH (defaultMainGenerator)
 import Data.CReal.Internal
 import Data.CReal.Extra ()
 
+import BoundedFunctions (boundedFunctions)
 import Floating (floating)
 import Ord (ord)
 import Read (read')
@@ -70,6 +71,10 @@ prop_showNumDigits :: Positive Int -> Rational -> Property
 prop_showNumDigits (Positive places) x =
   let s = rationalToDecimal places x
   in length (dropWhile (/= '.') s) === places + 1
+
+{-# ANN test_boundedFunctions "HLint: ignore Use camelCase" #-}
+test_boundedFunctions :: [TestTree]
+test_boundedFunctions = [ boundedFunctions (undefined :: CReal Precision) ]
 
 main :: IO ()
 main = $(defaultMainGenerator)

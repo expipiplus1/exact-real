@@ -14,6 +14,13 @@ module Data.CReal.Internal
   , atPrecision
   , crealPrecision
 
+  , (.*)
+  , (*.)
+  , (.*.)
+  , mulBounded
+  , mulBoundedL
+  , recipBounded
+
   , expBounded
   , logBounded
 
@@ -273,6 +280,40 @@ ln2 :: CReal n
 ln2 = logBounded 2
 
 --
+-- Bounded multiplication
+--
+
+infixl 7 `mulBounded`, `mulBoundedL`, .*, *., .*.
+
+(.*), (*.), (.*.) :: CReal n -> CReal n -> CReal n
+(.*) = mulBoundedL
+(*.) = flip mulBoundedL
+(.*.) = mulBounded
+
+-- | The first argument to @mulBoundedL@ must be in the range [-1..1]
+mulBoundedL :: CReal n -> CReal n -> CReal n
+mulBoundedL (CR x1) (CR x2) = CR (\p -> let s1 = 4
+                                            s2 = log2 (abs (x2 0) + 2) + 3
+                                            n1 = x1 (p + s2)
+                                            n2 = x2 (p + s1)
+                                        in (n1 * n2) /. 2^(p + s1 + s2))
+
+-- | Both arguments to @mulBounded@ must be in the range [-1..1]
+mulBounded :: CReal n -> CReal n -> CReal n
+mulBounded (CR x1) (CR x2) = CR (\p -> let s1 = 4
+                                           s2 = 4
+                                           n1 = x1 (p + s2)
+                                           n2 = x2 (p + s1)
+                                       in (n1 * n2) /. 2^(p + s1 + s2))
+
+-- | The absolute value of the argument to @recipBounded@ must be greater than
+-- or equal to 1
+recipBounded :: CReal n -> CReal n
+recipBounded (CR x) = CR (\p -> let s = 2
+                                    n = x (p + 2 * s + 2)
+                                in 2^(2 * p + 2 * s + 2) /. n)
+
+--
 -- Bounded exponential functions
 --
 
@@ -304,8 +345,9 @@ cosBounded x = let q = alternateSign (scanl' (*) 1 [1 % (n*(n+1)) | n <- [1,3..]
 -- | The input to atanBounded must be in [-1..1]
 atanBounded :: CReal n -> CReal n
 atanBounded x = let q = scanl' (*) 1 [n % (n + 1) | n <- [2,4..]]
-                    d = 1 + x * x
-                in CR (\p -> ((x/d) * powerSeries q (+1) (x*x/d)) `atPrecision` p)
+                    d = 1 + x .*. x
+                    rd = recipBounded d
+                in CR (\p -> ((x .*. rd) .* powerSeries q (+1) (x .*. x .*. rd)) `atPrecision` p)
 
 --
 -- Multiplication with powers of two

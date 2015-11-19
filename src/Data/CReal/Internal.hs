@@ -132,8 +132,7 @@ instance Num (CReal n) where
 
 -- | Taking the reciprocal of zero will not terminate
 instance Fractional (CReal n) where
-  -- This should be in base
-  fromRational n = fromInteger (numerator n) / fromInteger (denominator n)
+  fromRational n = fromInteger (numerator n) *. recipBounded (fromInteger (denominator n))
 
   {-# INLINE recip #-}
   -- TODO: Make recip 0 throw an error (if, for example, it would take more

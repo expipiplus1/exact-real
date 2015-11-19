@@ -223,8 +223,9 @@ instance KnownNat n => Real (CReal n) where
                  in x `atPrecision` p % 2^p
 
 instance KnownNat n => RealFrac (CReal n) where
-  properFraction x = let n = x `atPrecision` 0
-                         f = x - fromIntegral n
+  properFraction x = let p = crealPrecision x
+                         n = (x `atPrecision` p) `quot` 2^p
+                         f =  x - fromInteger n
                      in (fromInteger n, f)
 
 -- | Several of the functions in this class ('floatDigits', 'floatRange',

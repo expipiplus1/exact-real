@@ -1,5 +1,5 @@
 name:         exact-real
-version:      0.8.0.0
+version:      0.8.0.1
 synopsis:     Exact real arithmetic
 description:
   A type to represent exact real number using a fast binary Cauchy sequence

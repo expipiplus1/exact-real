@@ -10,35 +10,45 @@
 -- these functions
 ----------------------------------------------------------------------------
 module Data.CReal.Internal
-  ( CReal(..)
+  (
+    -- * The CReal type
+    CReal(..)
+    -- ** Simple utilities
   , atPrecision
   , crealPrecision
 
+    -- * More efficient variants of common functions
+    -- Note that the preconditions to these functions are not checked
+    -- ** Multiplicative
+  , mulBounded
+  , (.*.)
+  , mulBoundedL
   , (.*)
   , (*.)
-  , (.*.)
-  , mulBounded
-  , mulBoundedL
   , recipBounded
+  , shiftL
+  , shiftR
 
+    -- ** Exponential
   , expBounded
   , logBounded
 
+    -- ** Trigonometric
   , atanBounded
   , sinBounded
   , cosBounded
 
-  , shiftL
-  , shiftR
-
+    -- * Utilities for operating inside CReals
   , powerSeries
   , alternateSign
 
+    -- ** Integer operations
   , (/.)
   , log2
   , log10
   , isqrt
 
+    -- * Utilities for converting CReals to Strings
   , showAtPrecision
   , decimalDigitsAtPrecision
   , rationalToDecimal
@@ -55,8 +65,7 @@ import Numeric (readSigned, readFloat)
 
 -- $setup
 -- >>> :set -XDataKinds
-
-infixl 7 /.
+-- >>> :set -XPostfixOperators
 
 default ()
 
@@ -87,9 +96,14 @@ atPrecision :: CReal n -> Int -> Integer
 --
 -- >>> show (47176870 :: CReal 0)
 -- "47176870"
+--
+-- >>> show (pi :: CReal 230)
+-- "3.1415926535897932384626433832795028841971693993751058209749445923078164"
 instance KnownNat n => Show (CReal n) where
   show x = showAtPrecision (crealPrecision x) x
 
+-- | The instance of Read will read an optionally signed number expressed in
+-- decimal scientific notation
 instance KnownNat n => Read (CReal n) where
   readsPrec _ = readSigned readFloat
 
@@ -297,12 +311,20 @@ ln2 = logBounded 2
 
 infixl 7 `mulBounded`, `mulBoundedL`, .*, *., .*.
 
-(.*), (*.), (.*.) :: CReal n -> CReal n -> CReal n
+-- | Alias for @'mulBoundedL'@
+(.*) :: CReal n -> CReal n -> CReal n
 (.*) = mulBoundedL
+
+-- | Alias for @flip 'mulBoundedL'@
+(*.) :: CReal n -> CReal n -> CReal n
 (*.) = flip mulBoundedL
+
+-- | Alias for @'mulBoundedL'@
+(.*.) :: CReal n -> CReal n -> CReal n
 (.*.) = mulBounded
 
--- | The first argument to @mulBoundedL@ must be in the range [-1..1]
+-- | A more efficient multiply with the restriction that the first argument
+-- must be in the closed range [-1..1]
 mulBoundedL :: CReal n -> CReal n -> CReal n
 mulBoundedL (CR x1) (CR x2) = CR (\p -> let s1 = 4
                                             s2 = log2 (abs (x2 0) + 2) + 3
@@ -310,7 +332,8 @@ mulBoundedL (CR x1) (CR x2) = CR (\p -> let s1 = 4
                                             n2 = x2 (p + s1)
                                         in (n1 * n2) /. 2^(p + s1 + s2))
 
--- | Both arguments to @mulBounded@ must be in the range [-1..1]
+-- | A more efficient multiply with the restriction that both values must be
+-- in the closed range [-1..1]
 mulBounded :: CReal n -> CReal n -> CReal n
 mulBounded (CR x1) (CR x2) = CR (\p -> let s1 = 4
                                            s2 = 4
@@ -318,8 +341,8 @@ mulBounded (CR x1) (CR x2) = CR (\p -> let s1 = 4
                                            n2 = x2 (p + s1)
                                        in (n1 * n2) /. 2^(p + s1 + s2))
 
--- | The absolute value of the argument to @recipBounded@ must be greater than
--- or equal to 1
+-- | A more efficient 'recip' with the restriction that the input must have
+-- absolute value greater than or equal to 1
 recipBounded :: CReal n -> CReal n
 recipBounded (CR x) = CR (\p -> let s = 2
                                     n = x (p + 2 * s + 2)
@@ -329,12 +352,14 @@ recipBounded (CR x) = CR (\p -> let s = 2
 -- Bounded exponential functions
 --
 
--- | The input to expBounded must be in the range (-1..1)
+-- | A more efficient 'exp' with the restriction that the input must be in the
+-- closed range [-1..1]
 expBounded :: CReal n -> CReal n
 expBounded x = let q = [1 % (n!) | n <- [0..]]
                in powerSeries q (max 5) x
 
--- | The input must be in [2/3..2]
+-- | A more efficient 'log' with the restriction that the input must be in the
+-- closed range [2/3..2]
 logBounded :: CReal n -> CReal n
 logBounded x = let q = [1 % n | n <- [1..]]
                    y = (x - 1) .* recip x
@@ -344,17 +369,20 @@ logBounded x = let q = [1 % n | n <- [1..]]
 -- Bounded trigonometric functions
 --
 
--- | The input to sinBounded must be in (-1..1)
+-- | A more efficient 'sin' with the restriction that the input must be in the
+-- closed range [-1..1]
 sinBounded :: CReal n -> CReal n
 sinBounded x = let q = alternateSign (scanl' (*) 1 [ 1 % (n*(n+1)) | n <- [2,4..]])
                in x * powerSeries q (max 1) (x .*. x)
 
--- | The input to cosBounded must be in (-1..1)
+-- | A more efficient 'cos' with the restriction that the input must be in the
+-- closed range [-1..1]
 cosBounded :: CReal n -> CReal n
 cosBounded x = let q = alternateSign (scanl' (*) 1 [1 % (n*(n+1)) | n <- [1,3..]])
                in powerSeries q (max 1) (x .*. x)
 
--- | The input to atanBounded must be in [-1..1]
+-- | A more efficient 'atan' with the restriction that the input must be in the
+-- closed range [-1..1]
 atanBounded :: CReal n -> CReal n
 atanBounded x = let q = scanl' (*) 1 [n % (n + 1) | n <- [2,4..]]
                     d = 1 + x .*. x
@@ -419,20 +447,27 @@ rationalToDecimal places r = p ++ is ++ if places > 0 then "." ++ fs else ""
 -- Integer operations
 --
 
+infixl 7 /.
 -- | Division rounding to the nearest integer and rounding half integers to the
 -- nearest even integer.
 (/.) :: Integer -> Integer -> Integer
 n /. d = round (n % d)
 
 -- | @log2 x@ returns the base 2 logarithm of @x@ rounded towards zero.
+--
+-- The input must be positive
 log2 :: Integer -> Int
 log2 x = I# (integerLog2# x)
 
 -- | @log10 x@ returns the base 10 logarithm of @x@ rounded towards zero.
+--
+-- The input must be positive
 log10 :: Integer -> Int
 log10 x = I# (integerLogBase# 10 x)
 
 -- | @isqrt x@ returns the square root of @x@ rounded towards zero.
+--
+-- The input must not be negative
 isqrt :: Integer -> Integer
 isqrt x | x < 0     = error "Sqrt applied to negative Integer"
         | x == 0    = 0
@@ -474,11 +509,18 @@ alternateSign :: Num a => [a] -> [a]
 alternateSign = zipWith ($) (cycle [id, negate])
 
 -- | @powerSeries q f x `atPrecision` p@ will evaluate the power series with
--- coefficients @q@ at precision @f p@ at @x@
+-- coefficients @q@ up to the coefficient at index @f p@ at value @x@
 --
--- @f@ should be a function such that the CReal invariant is maintained
+-- @f@ should be a function such that the CReal invariant is maintained. This
+-- means that if the power series @y = a[0] + a[1] + a[2] + ...@ is evaluated
+-- at precision @p@ then the sum of every @a[n]@ for @n > f p@ must be less than
+-- 2^-p.
 --
--- See any of the trig functions for an example
+-- This is used by all the bounded transcendental functions.
+--
+-- >>> let (!) x = product [2..x]
+-- >>> powerSeries [1 % (n!) | n <- [0..]] (max 5) 1 :: CReal 218
+-- 2.718281828459045235360287471352662497757247093699959574966967627724
 powerSeries :: [Rational] -> (Int -> Int) -> CReal n -> CReal n
 powerSeries q termsAtPrecision (CR x) =
   CR (\p -> let t = termsAtPrecision p

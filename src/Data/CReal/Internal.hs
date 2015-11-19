@@ -300,7 +300,7 @@ instance KnownNat n => Ord (CReal n) where
 --
 
 piBy4 :: CReal n
-piBy4 = 4 * atanBounded (1/5) - atanBounded (1 / 239) -- Machin Formula
+piBy4 = 4 * atanBounded (recipBounded 5) - atanBounded (recipBounded 239) -- Machin Formula
 
 ln2 :: CReal n
 ln2 = logBounded 2

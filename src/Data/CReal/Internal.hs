@@ -413,6 +413,8 @@ atanBounded x = let q = scanl' (*) 1 [n % (n + 1) | n <- [2,4..]]
 -- Multiplication with powers of two
 --
 
+infixl 8 `shiftL`, `shiftR`
+
 -- | @x \`shiftR\` n@ is equal to @x@ divided by 2^@n@
 --
 -- @n@ can be negative or zero

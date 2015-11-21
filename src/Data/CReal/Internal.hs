@@ -32,6 +32,7 @@ module Data.CReal.Internal
 
     -- ** Exponential
   , expBounded
+  , expPosNeg
   , logBounded
 
     -- ** Trigonometric
@@ -222,8 +223,10 @@ instance Floating (CReal n) where
                  | otherwise -> atanBounded x
 
   -- TODO: benchmark replacing these with their series expansion
-  sinh x = (exp x - exp (-x)) / 2
-  cosh x = (exp x + exp (-x)) / 2
+  sinh x = let (expX, expNegX) = expPosNeg x
+           in (expX - expNegX) / 2
+  cosh x = let (expX, expNegX) = expPosNeg x
+           in (expX + expNegX) / 2
   tanh x = let e2x = exp (2 * x)
            in (e2x - 1) / (e2x + 1)
 
@@ -356,7 +359,7 @@ square (CR x) = CR (\p -> let s = log2 (abs (x 0) + 2) + 3
                           in (n * n) /. 2^(p + 2 * s))
 
 --
--- Bounded exponential functions
+-- Bounded exponential functions and expPosNeg
 --
 
 -- | A more efficient 'exp' with the restriction that the input must be in the
@@ -371,6 +374,16 @@ logBounded :: CReal n -> CReal n
 logBounded x = let q = [1 % n | n <- [1..]]
                    y = (x - 1) .* recip x
                in y .* powerSeries q id y
+
+-- | @expPosNeg x@ returns @(exp x, exp (-x))#
+expPosNeg :: CReal n -> (CReal n, CReal n)
+expPosNeg x = let CR o = x / ln2
+                  l = o 0
+                  y = x - fromInteger l * ln2
+              in if l == 0
+                   then (expBounded x, expBounded (-x))
+                   else (expBounded y `shiftL` fromInteger l,
+                         expBounded (negate y) `shiftR` fromInteger l)
 
 --
 -- Bounded trigonometric functions

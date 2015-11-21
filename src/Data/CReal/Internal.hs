@@ -228,7 +228,7 @@ instance Floating (CReal n) where
   cosh x = let (expX, expNegX) = expPosNeg x
            in (expX + expNegX) / 2
   tanh x = let e2x = exp (2 * x)
-           in (e2x - 1) / (e2x + 1)
+           in (e2x - 1) *. recipBounded (e2x + 1)
 
   asinh x = log (x + sqrt (x * x + 1))
   acosh x = log (x + sqrt (x + 1) * sqrt (x - 1))
@@ -365,7 +365,7 @@ square (CR x) = CR (\p -> let s = log2 (abs (x 0) + 2) + 3
 -- | A more efficient 'exp' with the restriction that the input must be in the
 -- closed range [-1..1]
 expBounded :: CReal n -> CReal n
-expBounded x = let q = [1 % (n!) | n <- [0..]]
+expBounded x = let q = (1%) <$> scanl' (*) 1 [1..]
                in powerSeries q (max 5) x
 
 -- | A more efficient 'log' with the restriction that the input must be in the
@@ -496,10 +496,6 @@ isqrt x | x < 0     = error "Sqrt applied to negative Integer"
         satisfied r  = sq r <= x && sq (r + 1) > x
         initialGuess = 2 ^ (log2 x `div` 2)
         sq r         = r * r
-
--- | Factorial function
-(!) :: Integer -> Integer
-(!) x = product [2..x]
 
 --
 -- Searching

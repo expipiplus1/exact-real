@@ -28,6 +28,7 @@ module Data.CReal.Internal
   , recipBounded
   , shiftL
   , shiftR
+  , square
 
     -- ** Exponential
   , expBounded
@@ -347,6 +348,12 @@ recipBounded :: CReal n -> CReal n
 recipBounded (CR x) = CR (\p -> let s = 2
                                     n = x (p + 2 * s + 2)
                                 in 2^(2 * p + 2 * s + 2) /. n)
+
+-- | Return the square of the input, more efficient than @('*')@
+square :: CReal n -> CReal n
+square (CR x) = CR (\p -> let s = log2 (abs (x 0) + 2) + 3
+                              n = x (p + s)
+                          in (n * n) /. 2^(p + 2 * s))
 
 --
 -- Bounded exponential functions

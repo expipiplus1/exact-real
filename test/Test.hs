@@ -71,6 +71,9 @@ prop_showNumDigits (Positive places) x =
 test_boundedFunctions :: [TestTree]
 test_boundedFunctions = [ boundedFunctions (undefined :: CReal Precision) ]
 
+prop_square :: CReal Precision -> Property
+prop_square x = square x === x * x
+
 main :: IO ()
 main = $(defaultMainGenerator)
 

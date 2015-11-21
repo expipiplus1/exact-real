@@ -1,6 +1,8 @@
 exact-real
 ==========
 
+[![Hackage](https://budueba.com/hackage/exact-real)](https://hackage.haskell.org/package/exact-real)
+
 Exact real arithmetic implemented by fast binary Cauchy sequences.
 
 

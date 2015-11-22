@@ -62,6 +62,7 @@ import GHC.Base (Int(..))
 import GHC.Integer.Logarithms (integerLog2#, integerLogBase#)
 import GHC.TypeLits
 import Numeric (readSigned, readFloat)
+import Data.Function.Memoize (memoize)
 
 {-# ANN module "HLint: ignore Reduce duplication" #-}
 
@@ -76,6 +77,9 @@ default ()
 -- 2^-p of the true value. Internally this sequence is represented as
 -- a function from Ints to Integers.
 newtype CReal (n :: Nat) = CR (Int -> Integer)
+
+crMemoize :: (Int -> Integer) -> CReal n
+crMemoize = CR . memoize
 
 -- | crealPrecision x returns the type level parameter representing x's default
 -- precision.
@@ -124,27 +128,27 @@ instance KnownNat n => Read (CReal n) where
 -- 1.0
 instance Num (CReal n) where
   {-# INLINE fromInteger #-}
-  fromInteger i = CR (\p -> i * 2 ^ p)
+  fromInteger i = crMemoize (\p -> i * 2 ^ p)
 
   {-# INLINE negate #-}
-  negate (CR x) = CR (negate . x)
+  negate (CR x) = crMemoize (negate . x)
 
   {-# INLINE abs #-}
-  abs (CR x) = CR (abs . x)
+  abs (CR x) = crMemoize (abs . x)
 
   {-# INLINE (+) #-}
-  CR x1 + CR x2 = CR (\p -> let n1 = x1 (p + 2)
-                                n2 = x2 (p + 2)
-                            in (n1 + n2) /. 4)
+  CR x1 + CR x2 = crMemoize (\p -> let n1 = x1 (p + 2)
+                                       n2 = x2 (p + 2)
+                                   in (n1 + n2) /. 4)
 
   {-# INLINE (*) #-}
-  CR x1 * CR x2 = CR (\p -> let s1 = log2 (abs (x1 0) + 2) + 3
-                                s2 = log2 (abs (x2 0) + 2) + 3
-                                n1 = x1 (p + s2)
-                                n2 = x2 (p + s1)
-                            in (n1 * n2) /. 2^(p + s1 + s2)  )
+  CR x1 * CR x2 = crMemoize (\p -> let s1 = log2 (abs (x1 0) + 2) + 3
+                                       s2 = log2 (abs (x2 0) + 2) + 3
+                                       n1 = x1 (p + s2)
+                                       n2 = x2 (p + s1)
+                                   in (n1 * n2) /. 2^(p + s1 + s2)  )
 
-  signum x = CR (\p -> signum (x `atPrecision` p) * 2^p)
+  signum x = crMemoize (\p -> signum (x `atPrecision` p) * 2^p)
 
 -- | Taking the reciprocal of zero will not terminate
 instance Fractional (CReal n) where
@@ -153,9 +157,9 @@ instance Fractional (CReal n) where
   {-# INLINE recip #-}
   -- TODO: Make recip 0 throw an error (if, for example, it would take more
   -- than 4GB of memory to represent the result)
-  recip (CR x) = CR (\p -> let s = findFirstMonotonic ((3 <=) . abs . x)
-                               n = x (p + 2 * s + 2)
-                           in 2^(2 * p + 2 * s + 2) /. n)
+  recip (CR x) = crMemoize (\p -> let s = findFirstMonotonic ((3 <=) . abs . x)
+                                      n = x (p + 2 * s + 2)
+                                  in 2^(2 * p + 2 * s + 2) /. n)
 
 instance Floating (CReal n) where
   -- TODO: Could we use something faster such as Ramanujan's formula
@@ -179,8 +183,8 @@ instance Floating (CReal n) where
                 | l > 0  -> let a = x `shiftR` l
                             in logBounded a + fromIntegral l *. ln2
 
-  sqrt (CR x) = CR (\p -> let n = x (2 * p)
-                          in isqrt n)
+  sqrt (CR x) = crMemoize (\p -> let n = x (2 * p)
+                                 in isqrt n)
 
   -- | This will diverge when the base is not positive
   x ** y = exp (log x * y)
@@ -266,7 +270,7 @@ instance KnownNat n => RealFloat (CReal n) where
   isDenormalized _ = False
   isNegativeZero _ = False
   isIEEE _ = False
-  atan2 y x = CR (\p ->
+  atan2 y x = crMemoize (\p ->
     let y' = y `atPrecision` p
         x' = x `atPrecision` p
         θ = if | x' > 0            ->  atan (y/x)
@@ -292,8 +296,8 @@ instance KnownNat n => Eq (CReal n) where
 instance KnownNat n => Ord (CReal n) where
   compare x y = let p = crealPrecision x
                 in compare ((x - y) `atPrecision` p) 0
-  max (CR x) (CR y) = CR (\p -> max (x p) (y p))
-  min (CR x) (CR y) = CR (\p -> min (x p) (y p))
+  max (CR x) (CR y) = crMemoize (\p -> max (x p) (y p))
+  min (CR x) (CR y) = crMemoize (\p -> min (x p) (y p))
 
 --------------------------------------------------------------------------------
 -- Some utility functions
@@ -330,33 +334,33 @@ infixl 7 `mulBounded`, `mulBoundedL`, .*, *., .*.
 -- | A more efficient multiply with the restriction that the first argument
 -- must be in the closed range [-1..1]
 mulBoundedL :: CReal n -> CReal n -> CReal n
-mulBoundedL (CR x1) (CR x2) = CR (\p -> let s1 = 4
-                                            s2 = log2 (abs (x2 0) + 2) + 3
-                                            n1 = x1 (p + s2)
-                                            n2 = x2 (p + s1)
-                                        in (n1 * n2) /. 2^(p + s1 + s2))
+mulBoundedL (CR x1) (CR x2) = crMemoize (\p -> let s1 = 4
+                                                   s2 = log2 (abs (x2 0) + 2) + 3
+                                                   n1 = x1 (p + s2)
+                                                   n2 = x2 (p + s1)
+                                               in (n1 * n2) /. 2^(p + s1 + s2))
 
 -- | A more efficient multiply with the restriction that both values must be
 -- in the closed range [-1..1]
 mulBounded :: CReal n -> CReal n -> CReal n
-mulBounded (CR x1) (CR x2) = CR (\p -> let s1 = 4
-                                           s2 = 4
-                                           n1 = x1 (p + s2)
-                                           n2 = x2 (p + s1)
-                                       in (n1 * n2) /. 2^(p + s1 + s2))
+mulBounded (CR x1) (CR x2) = crMemoize (\p -> let s1 = 4
+                                                  s2 = 4
+                                                  n1 = x1 (p + s2)
+                                                  n2 = x2 (p + s1)
+                                              in (n1 * n2) /. 2^(p + s1 + s2))
 
 -- | A more efficient 'recip' with the restriction that the input must have
 -- absolute value greater than or equal to 1
 recipBounded :: CReal n -> CReal n
-recipBounded (CR x) = CR (\p -> let s = 2
-                                    n = x (p + 2 * s + 2)
-                                in 2^(2 * p + 2 * s + 2) /. n)
+recipBounded (CR x) = crMemoize (\p -> let s = 2
+                                           n = x (p + 2 * s + 2)
+                                       in 2^(2 * p + 2 * s + 2) /. n)
 
 -- | Return the square of the input, more efficient than @('*')@
 square :: CReal n -> CReal n
-square (CR x) = CR (\p -> let s = log2 (abs (x 0) + 2) + 3
-                              n = x (p + s)
-                          in (n * n) /. 2^(p + 2 * s))
+square (CR x) = crMemoize (\p -> let s = log2 (abs (x 0) + 2) + 3
+                                     n = x (p + s)
+                                 in (n * n) /. 2^(p + 2 * s))
 
 --
 -- Bounded exponential functions and expPosNeg
@@ -407,7 +411,7 @@ atanBounded :: CReal n -> CReal n
 atanBounded x = let q = scanl' (*) 1 [n % (n + 1) | n <- [2,4..]]
                     d = 1 + x .*. x
                     rd = recipBounded d
-                in CR (\p -> ((x .*. rd) .* powerSeries q (+1) (x .*. x .*. rd)) `atPrecision` p)
+                in (x .*. rd) .* powerSeries q (+1) (x .*. x .*. rd)
 
 --
 -- Multiplication with powers of two
@@ -421,10 +425,10 @@ infixl 8 `shiftL`, `shiftR`
 --
 -- This can be faster than doing the division
 shiftR :: CReal n -> Int -> CReal n
-shiftR (CR x) n = CR (\p -> let p' = p - n
-                            in if p' >= 0
-                                 then x p'
-                                 else x 0 /. 2^(-p'))
+shiftR (CR x) n = crMemoize (\p -> let p' = p - n
+                                   in if p' >= 0
+                                        then x p'
+                                        else x 0 /. 2^(-p'))
 
 -- | @x \`shiftL\` n@ is equal to @x@ multiplied by 2^@n@
 --
@@ -540,8 +544,8 @@ alternateSign = zipWith ($) (cycle [id, negate])
 -- >>> powerSeries [1 % (n!) | n <- [0..]] (max 5) 1 :: CReal 218
 -- 2.718281828459045235360287471352662497757247093699959574966967627724
 powerSeries :: [Rational] -> (Int -> Int) -> CReal n -> CReal n
-powerSeries q termsAtPrecision (CR x) =
-  CR (\p -> let t = termsAtPrecision p
+powerSeries q termsAtPrecision (CR x) = crMemoize
+     (\p -> let t = termsAtPrecision p
                 d = log2 (toInteger t) + 2
                 p' = p + d
                 p'' = p' + d

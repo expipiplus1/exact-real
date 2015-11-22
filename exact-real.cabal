@@ -1,5 +1,5 @@
 name:         exact-real
-version:      0.9.0
+version:      0.10.0
 synopsis:     Exact real arithmetic
 description:
   A type to represent exact real number using a fast binary Cauchy sequence
@@ -28,7 +28,8 @@ library
     Data.CReal.Internal
   build-depends:
     base        >= 4.8 && < 4.9,
-    integer-gmp           < 1.1.0.0
+    integer-gmp           < 1.1.0.0,
+    memoize     >= 0.7 && < 0.8
   hs-source-dirs:
     src
   default-language:

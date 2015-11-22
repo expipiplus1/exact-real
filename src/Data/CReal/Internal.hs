@@ -41,6 +41,7 @@ module Data.CReal.Internal
   , cosBounded
 
     -- * Utilities for operating inside CReals
+  , crMemoize
   , powerSeries
   , alternateSign
 
@@ -78,6 +79,9 @@ default ()
 -- a function from Ints to Integers.
 newtype CReal (n :: Nat) = CR (Int -> Integer)
 
+-- | 'crMemoize' takes a fast binary Cauchy sequence and returns a CReal
+-- represented by that sequence which will memoize the values at each
+-- precision. This is essential for getting good performance.
 crMemoize :: (Int -> Integer) -> CReal n
 crMemoize = CR . memoize
 

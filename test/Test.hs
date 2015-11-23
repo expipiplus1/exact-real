@@ -9,6 +9,7 @@ import Test.Tasty (testGroup, TestTree)
 import Test.Tasty.QuickCheck (Positive(..), testProperty, (===), Property, (==>), (.&&.), testProperty)
 import Test.Tasty.TH (defaultMainGenerator)
 
+import Data.CReal.Converge
 import Data.CReal.Internal
 import Data.CReal.Extra ()
 
@@ -66,6 +67,18 @@ prop_showNumDigits :: Positive Int -> Rational -> Property
 prop_showNumDigits (Positive places) x =
   let s = rationalToDecimal places x
   in length (dropWhile (/= '.') s) === places + 1
+
+prop_convergeSqrt :: Positive (CReal Precision) -> Property
+prop_convergeSqrt (Positive x) = convergedSqrt === sqrt x
+  where Just convergedSqrt = converge (iterate improve initialGuess)
+        initialGuess = x
+        improve y = (y + x / y) / 2
+
+prop_convergeCbrt :: Positive (CReal Precision) -> Property
+prop_convergeCbrt (Positive x) = cbrtX === x ** (1/3)
+  where Just cbrtX = converge (iterate improve initialGuess)
+        initialGuess = x
+        improve y = (1 / 3) * (2 * y + x / square y)
 
 {-# ANN test_boundedFunctions "HLint: ignore Use camelCase" #-}
 test_boundedFunctions :: [TestTree]

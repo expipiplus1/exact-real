@@ -1,5 +1,5 @@
 name:         exact-real
-version:      0.10.0
+version:      0.11.0
 synopsis:     Exact real arithmetic
 description:
   A type to represent exact real number using a fast binary Cauchy sequence
@@ -26,6 +26,7 @@ source-repository head
 library
   exposed-modules:
     Data.CReal
+    Data.CReal.Converge
     Data.CReal.Internal
   build-depends:
     base        >= 4.8 && < 4.9,

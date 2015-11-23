@@ -2,6 +2,7 @@ exact-real
 ==========
 
 [![Hackage](https://budueba.com/hackage/exact-real)](https://hackage.haskell.org/package/exact-real)
+[![Stackage Nightly](http://stackage.org/package/exact-real/badge/nightly)](http://stackage.org/nightly/package/exact-real)
 [![Build Status](https://travis-ci.org/expipiplus1/exact-real.svg)](https://travis-ci.org/expipiplus1/exact-real)
 [![Build status](https://ci.appveyor.com/api/projects/status/sviohnqtyo9y7goa?svg=true)](https://ci.appveyor.com/project/expipiplus1/exact-real)
 [![Coverage Status](https://coveralls.io/repos/expipiplus1/exact-real/badge.svg?branch=codecov&service=github)](https://coveralls.io/github/expipiplus1/exact-real?branch=codecov)

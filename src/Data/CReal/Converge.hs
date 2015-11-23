@@ -12,6 +12,10 @@ import Data.CReal.Internal (CReal(..), atPrecision, crMemoize)
 import Data.Proxy (Proxy)
 import GHC.TypeLits (someNatVal, SomeNat(..))
 
+-- $setup
+-- >>> :set -XFlexibleContexts
+-- >>> import Data.CReal.Internal
+
 -- | If a type is an instance of Converge then it represents a stream of values
 -- which are increasingly accurate approximations of a desired value
 class Converge a where
@@ -22,6 +26,14 @@ class Converge a where
   -- to.
   --
   -- If the stream is empty then it should return nothing.
+  --
+  -- >>> let initialGuess = 1 :: Double
+  -- >>> let improve x = (x + 121 / x) / 2
+  -- >>> converge (iterate improve initialGuess)
+  -- Just 11.0
+  --
+  -- >>> converge [] :: Maybe [Int]
+  -- Nothing
   converge :: a -> Maybe (Element a)
 
 -- | Every list of equatable values is an instance of 'Converge'. 'converge'
@@ -39,6 +51,15 @@ instance {-# OVERLAPPABLE #-} Eq a => Converge [a] where
 -- n@) despite the precision the value is requested at by the surrounding
 -- computation. This instance will return a value approximated to the correct
 -- precision.
+--
+-- Find where log x = π using Newton's method
+-- >>> let initialGuess = 1
+-- >>> let improve x = x - x * (log x - pi)
+-- >>> let Just y = converge (iterate improve initialGuess)
+-- >>> showAtPrecision 10 y
+-- "23.1406"
+-- >>> showAtPrecision 50 y
+-- "23.1406926327792686"
 instance {-# OVERLAPPING #-} Converge [CReal n] where
   type Element [CReal n] = CReal n
   converge [] = Nothing

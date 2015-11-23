@@ -3,6 +3,7 @@ exact-real
 
 [![Hackage](https://budueba.com/hackage/exact-real)](https://hackage.haskell.org/package/exact-real)
 [![Build Status](https://travis-ci.org/expipiplus1/exact-real.svg)](https://travis-ci.org/expipiplus1/exact-real)
+[![Build status](https://ci.appveyor.com/api/projects/status/sviohnqtyo9y7goa?svg=true)](https://ci.appveyor.com/project/expipiplus1/exact-real)
 
 Exact real arithmetic implemented by fast binary Cauchy sequences.
 

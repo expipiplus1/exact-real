@@ -17,6 +17,7 @@ extra-source-files:
   readme.md
   stack.yaml
 cabal-version:       >=1.10
+tested-with: GHC >= 7.4 && < 8
 
 source-repository head
   type: git

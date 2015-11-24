@@ -1,8 +1,8 @@
 name:         exact-real
-version:      0.11.2
+version:      0.11.3
 synopsis:     Exact real arithmetic
 description:
-  A type to represent exact real numbers using a fast binary Cauchy sequence
+  A type to represent exact real numbers using fast binary Cauchy sequences.
 license:      MIT
 license-file: LICENSE
 author:       Joe Hermaszewski

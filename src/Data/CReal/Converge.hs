@@ -60,11 +60,11 @@ class Converge a where
   -- doesn't fail to terminate.
   -- >>> let f  x = x ^ 3 - 2 * x + 2
   -- >>> let f' x = 3 * x ^ 2 - 2
-  -- >>> let initialGuess = 0.1
+  -- >>> let initialGuess = 0.1 :: Float
   -- >>> let improve x = x - f x / f' x
   -- >>> let err x = abs (f x)
   -- >>> convergeErr err (iterate improve initialGuess)
-  -- Just 0.1
+  -- Just 1.0142132
   convergeErr :: Ord (Element a) => (Element a -> Element a) -> a -> Maybe (Element a)
 
 -- | Every list of equatable values is an instance of 'Converge'. 'converge'

@@ -1,14 +1,19 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE FlexibleContexts #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
 module Main (main) where
 
+import Data.List (inits)
+import Data.Maybe (fromJust)
 import Data.Ratio ((%))
 import Test.Tasty (testGroup, TestTree)
 import Test.Tasty.QuickCheck (Positive(..), testProperty, (===), Property, (==>), (.&&.), testProperty)
 import Test.Tasty.TH (defaultMainGenerator)
+import Test.Tasty.HUnit (Assertion, (@=?), testCase)
 
+import Data.CReal.Converge
 import Data.CReal.Internal
 import Data.CReal.Extra ()
 
@@ -66,6 +71,61 @@ prop_showNumDigits :: Positive Int -> Rational -> Property
 prop_showNumDigits (Positive places) x =
   let s = rationalToDecimal places x
   in length (dropWhile (/= '.') s) === places + 1
+
+--
+-- Testing Data.CReal.Converge
+--
+
+case_convergeErrEmptyCReal :: Assertion
+case_convergeErrEmptyCReal = convergeErr undefined [] @=? (Nothing :: Maybe (CReal 0))
+
+case_convergeErrEmptyUnit :: Assertion
+case_convergeErrEmptyUnit = convergeErr undefined [] @=? (Nothing :: Maybe ())
+
+case_convergeEmptyCReal :: Assertion
+case_convergeEmptyCReal = converge [] @=? (Nothing :: Maybe (CReal 0))
+
+case_convergeEmptyUnit :: Assertion
+case_convergeEmptyUnit = converge [] @=? (Nothing :: Maybe ())
+
+prop_convergeCollatzInteger :: Positive Integer -> Property
+prop_convergeCollatzInteger (Positive x) = converge (iterate collatz x) === Just 1
+  where collatz :: Integer -> Integer
+        collatz c | c == 1 = 1
+                  | even c = c `div` 2
+                  | otherwise = c * 3 + 1
+
+
+case_convergePointNineRecurringCReal :: Assertion
+case_convergePointNineRecurringCReal = (Just 1 :: Maybe (CReal Precision)) @=?
+                                       converge (read <$> pointNineRecurring)
+  where pointNineRecurring = ("0.9" ++) <$> inits (repeat '9')
+
+prop_convergeErrSqrtCReal :: Positive (CReal Precision) -> Property
+prop_convergeErrSqrtCReal (Positive x) = sqrt' (x ^ (2::Int)) === x
+  where sqrt' x' = let initialGuess = x'
+                       improve y = (y + x' / y) / 2
+                       err y = abs (x' - y * y)
+                   in fromJust $ convergeErr err (tail $ iterate improve initialGuess)
+
+-- Test that the behavior when error is too small is correct
+prop_convergeErrSmallSqrtCReal :: Positive (CReal Precision) -> Property
+prop_convergeErrSmallSqrtCReal (Positive x) = sqrt' (x ^ (2::Int)) === x
+  where sqrt' x' = let initialGuess = x'
+                       improve y = (y + x' / y) / 2
+                       err y = abs (x' - y * y) / 128
+                   in fromJust $ convergeErr err (tail $ iterate improve initialGuess)
+
+prop_convergeErrSqrtInteger :: Positive Integer -> Property
+prop_convergeErrSqrtInteger (Positive x) = sqrt' (x ^ (2::Int)) === x
+  where sqrt' x' = let initialGuess = x'
+                       improve y = (y + x' `quot` y) `quot` 2
+                       err y = abs (x' - y * y)
+                   in fromJust $ convergeErr err (tail $ iterate improve initialGuess)
+
+--
+--
+--
 
 {-# ANN test_boundedFunctions "HLint: ignore Use camelCase" #-}
 test_boundedFunctions :: [TestTree]

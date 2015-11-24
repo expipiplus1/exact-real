@@ -58,6 +58,7 @@ class Converge a where
   -- For example trying to find the root of the following funciton @f@ with a
   -- poor choice of starting point. Although this doesn't find the root, it
   -- doesn't fail to terminate.
+  --
   -- >>> let f  x = x ^ 3 - 2 * x + 2
   -- >>> let f' x = 3 * x ^ 2 - 2
   -- >>> let initialGuess = 0.1 :: Float
@@ -93,6 +94,7 @@ instance {-# OVERLAPPABLE #-} Eq a => Converge [a] where
 -- which the error function should be evaluated at.
 --
 -- Find where log x = π using Newton's method
+--
 -- >>> let initialGuess = 1
 -- >>> let improve x = x - x * (log x - pi)
 -- >>> let Just y = converge (iterate improve initialGuess)

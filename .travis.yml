@@ -49,6 +49,7 @@ install:
  - cabal install hpc-coveralls --dry -v >> installplan.txt
 
  - sed -i -e '1,/^Resolving /d' installplan.txt; cat installplan.txt
+ - sed -i -e '1,/(via: .*) /d' installplan.txt; cat installplan.txt
 
 # check whether current requested install-plan matches cached package-db snapshot
  - if diff -u $HOME/.cabsnap/installplan.txt installplan.txt;

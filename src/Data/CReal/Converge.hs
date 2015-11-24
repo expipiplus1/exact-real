@@ -41,7 +41,7 @@ class Converge a where
   -- Nothing
   converge :: a -> Maybe (Element a)
 
-  -- 'convergeErr' is a function that returns the value the stream is
+  -- | 'convergeErr' is a function that returns the value the stream is
   -- converging to. It also takes a function err which returns a value which
   -- varies monotonically with the error of the value in the stream. This can
   -- be used to ensure that when 'convergeErr' terminates when given a

@@ -46,7 +46,10 @@ class Converge a where
   -- varies monotonically with the error of the value in the stream. This can
   -- be used to ensure that when 'convergeErr' terminates when given a
   -- non-converging stream or a stream which enters a cycle close to the
-  -- solution. It's often the case that streams generated with approximation
+  -- solution. See the documentation for the CReal instance for a caveat with
+  -- that implementation.
+  --
+  -- It's often the case that streams generated with approximation
   -- functions such as Newton's method will generate worse approximations for
   -- some number of steps until they find the "zone of convergence". For these
   -- cases it's necessary to drop some values of the stream before handing it
@@ -85,6 +88,10 @@ instance {-# OVERLAPPABLE #-} Eq a => Converge [a] where
 -- computation. This instance will return a value approximated to the correct
 -- precision.
 --
+-- It's important to note when the error function reaches zero this function
+-- behaves like 'converge' as it's not possible to determine the precision at
+-- which the error function should be evaluated at.
+--
 -- Find where log x = π using Newton's method
 -- >>> let initialGuess = 1
 -- >>> let improve x = x - x * (log x - pi)
@@ -99,7 +106,7 @@ instance {-# OVERLAPPING #-} Converge [CReal n] where
   converge [] = Nothing
   converge xs =
     Just $ crMemoize (\p ->
-      case someNatVal (toInteger (p+1)) of
+      case someNatVal (toInteger p) of
            Nothing -> error "Data.CReal.Converge p should be non negative"
            Just (SomeNat (_ :: Proxy p')) ->
              let modifyPrecision = coerce :: [CReal n] -> [CReal p']
@@ -109,13 +116,14 @@ instance {-# OVERLAPPING #-} Converge [CReal n] where
   convergeErr _ [] = Nothing
   convergeErr err xs =
     Just $ crMemoize (\p ->
-      case someNatVal (toInteger (p+1)) of
+      case someNatVal (toInteger p) of
            Nothing -> error "Data.CReal.Converge p should be non negative"
            Just (SomeNat (_ :: Proxy p')) ->
              let modifyPrecision = coerce :: [CReal n] -> [CReal p']
                  modifyFunPrecision = coerce :: (CReal n -> CReal n) -> CReal p' -> CReal p'
                  es = (modifyFunPrecision err &&& id) <$> modifyPrecision xs
-             in (snd . last . takeWhilePairwise ((>) `on` fst) $ es) `atPrecision` p)
+                 continue (e1, x1) (e2, x2) = if e1 == 0 then x1 /= x2 else e1 > e2
+             in (snd . last . takeWhilePairwise continue $ es) `atPrecision` p)
   {-# INLINE convergeErr #-}
 
 takeWhilePairwise :: (a -> a -> Bool) -> [a] -> [a]

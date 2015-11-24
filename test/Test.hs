@@ -108,6 +108,14 @@ prop_convergeErrSqrtCReal (Positive x) = sqrt' (x ^ (2::Int)) === x
                        err y = abs (x' - y * y)
                    in fromJust $ convergeErr err (tail $ iterate improve initialGuess)
 
+-- Test that the behavior when error is too small is correct
+prop_convergeErrSmallSqrtCReal :: Positive (CReal Precision) -> Property
+prop_convergeErrSmallSqrtCReal (Positive x) = sqrt' (x ^ (2::Int)) === x
+  where sqrt' x' = let initialGuess = x'
+                       improve y = (y + x' / y) / 2
+                       err y = abs (x' - y * y) / 128
+                   in fromJust $ convergeErr err (tail $ iterate improve initialGuess)
+
 prop_convergeErrSqrtInteger :: Positive Integer -> Property
 prop_convergeErrSqrtInteger (Positive x) = sqrt' (x ^ (2::Int)) === x
   where sqrt' x' = let initialGuess = x'

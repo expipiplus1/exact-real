@@ -76,6 +76,7 @@ test-suite test
     Fractional,
     Num,
     Ord,
+    Random,
     Read,
     Real,
     RealFloat,

@@ -3,6 +3,7 @@
 {-# LANGUAGE MagicHash #-}
 {-# LANGUAGE MultiWayIf #-}
 {-# LANGUAGE PostfixOperators #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 
 -----------------------------------------------------------------------------
 -- | This module exports a bunch of utilities for working inside the CReal
@@ -313,7 +314,10 @@ instance KnownNat n => Random (CReal n) where
                            (n, g') = randomR (0, 2^p) g
                            r = fromRational (n % 2^p)
                        in (r * d + lo, g')
-  random = randomR (0, 1)
+  random g = let p = 1 + crealPrecision (undefined :: CReal n)
+                 (n, g') = randomR (0, max 0 (2^p - 2)) g
+                 r = fromRational (n % 2^p)
+             in (r, g')
 
 --------------------------------------------------------------------------------
 -- Some utility functions

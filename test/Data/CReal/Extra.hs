@@ -5,8 +5,6 @@ module Data.CReal.Extra
   ) where
 
 import Data.CReal
-import Data.CReal.Internal (log2)
-import Data.Ratio ((%))
 import GHC.TypeLits
 import Test.QuickCheck (Arbitrary(..), choose)
 import Test.QuickCheck.Checkers (EqProp(..), eq)

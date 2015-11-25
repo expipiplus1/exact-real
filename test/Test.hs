@@ -24,6 +24,7 @@ import Read (read')
 import Real (real)
 import RealFrac (realFrac)
 import RealFloat (realFloat)
+import Random (random)
 
 -- How many binary digits to use for comparisons TODO: Test with many different
 -- precisions
@@ -52,6 +53,10 @@ test_realFloat = [ realFloat (undefined :: CReal Precision) ]
 {-# ANN test_read "HLint: ignore Use camelCase" #-}
 test_read :: [TestTree]
 test_read = [ read' (undefined :: CReal Precision) ]
+
+{-# ANN test_random "HLint: ignore Use camelCase" #-}
+test_random :: [TestTree]
+test_random = [ random (undefined :: CReal Precision) ]
 
 prop_decimalDigits :: Positive Int -> Property
 prop_decimalDigits (Positive p) = let d = decimalDigitsAtPrecision p

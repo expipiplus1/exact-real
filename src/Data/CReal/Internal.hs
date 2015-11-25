@@ -3,6 +3,7 @@
 {-# LANGUAGE MagicHash #-}
 {-# LANGUAGE MultiWayIf #-}
 {-# LANGUAGE PostfixOperators #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 
 -----------------------------------------------------------------------------
 -- | This module exports a bunch of utilities for working inside the CReal
@@ -64,6 +65,7 @@ import GHC.Integer.Logarithms (integerLog2#, integerLogBase#)
 import GHC.TypeLits
 import Numeric (readSigned, readFloat)
 import Data.Function.Memoize (memoize)
+import System.Random (Random(..))
 
 {-# ANN module "HLint: ignore Reduce duplication" #-}
 
@@ -302,6 +304,20 @@ instance KnownNat n => Ord (CReal n) where
                 in compare ((x - y) `atPrecision` p) 0
   max (CR x) (CR y) = crMemoize (\p -> max (x p) (y p))
   min (CR x) (CR y) = crMemoize (\p -> min (x p) (y p))
+
+-- | The 'Random' instance for @\'CReal\' p@ will return random number with at
+-- least @p@ digits of precision, every digit after that is zero.
+instance KnownNat n => Random (CReal n) where
+  randomR (lo, hi) g = let d = hi - lo
+                           l = 1 + log2 (abs d `atPrecision` 0)
+                           p = l + crealPrecision lo
+                           (n, g') = randomR (0, 2^p) g
+                           r = fromRational (n % 2^p)
+                       in (r * d + lo, g')
+  random g = let p = 1 + crealPrecision (undefined :: CReal n)
+                 (n, g') = randomR (0, max 0 (2^p - 2)) g
+                 r = fromRational (n % 2^p)
+             in (r, g')
 
 --------------------------------------------------------------------------------
 -- Some utility functions

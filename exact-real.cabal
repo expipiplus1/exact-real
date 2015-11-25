@@ -1,5 +1,5 @@
 name:         exact-real
-version:      0.11.3
+version:      0.12.0
 synopsis:     Exact real arithmetic
 description:
   A type to represent exact real numbers using fast binary Cauchy sequences.
@@ -31,7 +31,8 @@ library
   build-depends:
     base        >= 4.8 && < 4.9,
     integer-gmp           < 1.1.0.0,
-    memoize     >= 0.7 && < 0.8
+    memoize     >= 0.7 && < 0.8,
+    random      >= 1.0 && < 1.2
   hs-source-dirs:
     src
   default-language:
@@ -90,8 +91,8 @@ test-suite test
     tasty-quickcheck >= 0.8  && < 0.9,
     tasty-hunit      >= 0.9  && < 0.10,
     QuickCheck       >= 2.8  && < 2.9,
-    checkers         >= 0.4  && < 0.5,
     random           >= 1.0  && < 1.2,
+    checkers         >= 0.4  && < 0.5,
     exact-real
 
 test-suite doctest

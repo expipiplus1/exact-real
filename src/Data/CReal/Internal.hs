@@ -75,10 +75,10 @@ import System.Random (Random(..))
 
 default ()
 
--- | The type CReal represents a fast binary Cauchy sequence. This is
--- a Cauchy sequence with the invariant that the pth element will be within
--- 2^-p of the true value. Internally this sequence is represented as
--- a function from Ints to Integers.
+-- | The type CReal represents a fast binary Cauchy sequence. This is a Cauchy
+-- sequence with the invariant that the pth element divided by 2^p will be
+-- within 2^-p of the true value. Internally this sequence is represented as a
+-- function from Ints to Integers.
 newtype CReal (n :: Nat) = CR (Int -> Integer)
 
 -- | 'crMemoize' takes a fast binary Cauchy sequence and returns a CReal

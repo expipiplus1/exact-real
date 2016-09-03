@@ -15,7 +15,6 @@ build-type:   Simple
 extra-source-files:
   .gitignore
   readme.md
-  stack.yaml
 cabal-version:       >=1.10
 tested-with: GHC >= 7.10 && <= 8.0.1
 

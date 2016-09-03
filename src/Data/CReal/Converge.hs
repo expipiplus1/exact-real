@@ -1,20 +1,21 @@
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE RankNTypes #-}
-{-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE ConstrainedClassMethods #-}
+{-# LANGUAGE FlexibleContexts        #-}
+{-# LANGUAGE FlexibleInstances       #-}
+{-# LANGUAGE RankNTypes              #-}
+{-# LANGUAGE ScopedTypeVariables     #-}
+{-# LANGUAGE TypeFamilies            #-}
 
 -- | The Converge type class.
 module Data.CReal.Converge
   ( Converge(..)
   ) where
 
-import Control.Arrow ((&&&))
-import Data.Coerce (coerce)
-import Data.CReal.Internal (CReal(..), atPrecision, crMemoize)
-import Data.Function (on)
-import Data.Proxy (Proxy)
-import GHC.TypeLits (someNatVal, SomeNat(..))
+import           Control.Arrow       ((&&&))
+import           Data.Coerce         (coerce)
+import           Data.CReal.Internal (CReal (..), atPrecision, crMemoize)
+import           Data.Function       (on)
+import           Data.Proxy          (Proxy)
+import           GHC.TypeLits        (SomeNat (..), someNatVal)
 
 -- $setup
 -- >>> :set -XFlexibleContexts
@@ -27,7 +28,7 @@ class Converge a where
   type Element a
 
   -- | 'converge' is a function that returns the value the stream is converging
-  -- to. If given a stream which doens't converge to a single value then
+  -- to. If given a stream which doesn't converge to a single value then
   -- 'converge' will not terminate.
   --
   -- If the stream is empty then it should return nothing.

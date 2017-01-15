@@ -29,9 +29,9 @@ library
     Data.CReal.Converge
     Data.CReal.Internal
   build-depends:
-    base        >= 4.8 && < 4.9,
+    base        >= 4.8 && < 4.10,
     integer-gmp           < 1.1.0.0,
-    memoize     >= 0.7 && < 0.8,
+    memoize     >= 0.7 && < 0.9,
     random      >= 1.0 && < 1.2
   hs-source-dirs:
     src

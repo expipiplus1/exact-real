@@ -15,6 +15,9 @@ Motivating Example
 
 Compare evaluating Euler's identity with a `Float`:
 
+Note that you'll need the `DataKinds` extension turned on to evaluate the 
+examples in this readme.
+
 ``` haskell
 λ> let i = 0 :+ 1
 λ> exp (i * pi) + 1 :: Complex Float

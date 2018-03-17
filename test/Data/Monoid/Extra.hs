@@ -1,5 +1,5 @@
-{-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE StandaloneDeriving         #-}
 
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
@@ -8,14 +8,9 @@ module Data.Monoid.Extra
   ( module Data.Monoid
   ) where
 
-import Data.Monoid (Sum(..), Product(..))
-import Test.QuickCheck (Arbitrary)
-import Test.QuickCheck.Checkers (EqProp)
-
-deriving instance Arbitrary a => Arbitrary (Sum a)
+import           Data.Monoid              (Product (..), Sum (..))
+import           Test.QuickCheck.Checkers (EqProp)
 
 deriving instance EqProp a => EqProp (Sum a)
-
-deriving instance Arbitrary a => Arbitrary (Product a)
 
 deriving instance EqProp a => EqProp (Product a)

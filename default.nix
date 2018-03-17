@@ -1,7 +1,7 @@
 { pkgs ? import <nixpkgs> {} }:
 
 let
-  haskellPackages = pkgs.haskell.packages.ghc802.override{
+  haskellPackages = pkgs.haskell.packages.ghc822.override{
     overrides =
       let overrideAttrs = package: newAttrs: package.override (args: args // {
               mkDerivation = expr: args.mkDerivation (expr // newAttrs);

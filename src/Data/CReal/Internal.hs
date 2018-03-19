@@ -35,6 +35,7 @@ module Data.CReal.Internal
   , expBounded
   , expPosNeg
   , logBounded
+  , sinhBounded
 
     -- ** Trigonometric
   , atanBounded
@@ -56,6 +57,8 @@ module Data.CReal.Internal
   , showAtPrecision
   , decimalDigitsAtPrecision
   , rationalToDecimal
+
+  , expTerms
   ) where
 
 import Data.List (scanl')
@@ -390,7 +393,20 @@ square (CR x) = crMemoize (\p -> let s = log2 (abs (x 0) + 2) + 3
 -- closed range [-1..1]
 expBounded :: CReal n -> CReal n
 expBounded x = let q = (1%) <$> scanl' (*) 1 [1..]
-               in powerSeries q (max 5) x
+               -- in powerSeries q (max 5) x
+               in powerSeries q expTerms x
+
+-- | Solving for $2^(p+2) < (k + 1)!$
+--
+-- $log2(2^(p+2)) < log2((k+1)!)$
+-- $p+2 < log((k+1)!)/log(2)$
+expTerms :: Int -> Int
+-- expTerms p = findFirstMonotonic (\k -> 2^(p+2) < product [2..k+1])
+-- expTerms p = findFirstMonotonic (\k -> (p+2) < log2 (product [2..(toInteger k)+1]))
+expTerms p =
+  findFirstMonotonic (\k -> (p + 2) < sum (log2 <$> [2 .. toInteger k + 1]))
+
+-- findFirstMonotonic :: (Int -> Bool) -> Int
 
 -- | A more efficient 'log' with the restriction that the input must be in the
 -- closed range [2/3..2]
@@ -574,3 +590,9 @@ powerSeries q termsAtPrecision (CR x) = crMemoize
                 r = sum . take (t + 1) . fmap (round . (* (2^d))) $ zipWith (*) q xs
             in r /. 4^d)
 
+-- | TODO: Incomplete
+--
+-- sinh x = x + x^3 / 3! + x^5 / 5! ...
+sinhBounded :: CReal n -> CReal n
+sinhBounded x = let q = scanl' (*) 1 [1 % (n*(n+1)) | n <- [2,4..]]
+                in x .* powerSeries q (max 1) (x .*. x)

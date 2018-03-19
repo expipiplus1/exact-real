@@ -1,5 +1,8 @@
+{-# LANGUAGE LambdaCase #-}
+
 module Main where
 
+import System.Environment
 import Control.Monad (filterM)
 import Data.List (isSuffixOf)
 import System.Directory (doesDirectoryExist, doesFileExist, getDirectoryContents)
@@ -7,7 +10,10 @@ import System.FilePath ((</>))
 import Test.DocTest (doctest)
 
 main :: IO ()
-main = doctest =<< getSources
+main = 
+  getArgs >>= \case
+    [] -> doctest =<< getSources
+    xs -> doctest xs
 
 getSources :: IO [FilePath]
 getSources = filter (isSuffixOf ".hs") <$> go "src"

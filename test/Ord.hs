@@ -25,7 +25,7 @@ ord _ = testGroup "Test Ord instance" ts
          , testProperty "max x y == x or y" (property $ \x y ->
                                let m = max x y :: a
                                in m == x || m == y)
-         , testProperty "min x y >= x and y" (property $ \x y ->
+         , testProperty "min x y <= x and y" (property $ \x y ->
                                let m = min x y :: a
                                in m <= x && m <= y)
          , testProperty "min x y == x or y" (property $ \x y ->

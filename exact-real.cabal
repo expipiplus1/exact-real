@@ -31,7 +31,6 @@ library
   build-depends:
     base        >= 4.8 && < 4.11,
     integer-gmp           < 1.1.0.0,
-    memoize     >= 0.7 && < 0.9,
     random      >= 1.0 && < 1.2
   hs-source-dirs:
     src

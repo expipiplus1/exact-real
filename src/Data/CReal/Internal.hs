@@ -340,7 +340,7 @@ instance KnownNat n => RealFrac (CReal n) where
                          v = x `atPrecision` p
                          r = v .&. (bit p - 1)
                          c = unsafeShiftR (v - r) p
-                         n = if c < 0 then c + 1 else c
+                         n = if c < 0 && r /= 0 then c + 1 else c
                          f = plusInteger x (negate n)
                      in (fromInteger n, f)
 
@@ -348,7 +348,7 @@ instance KnownNat n => RealFrac (CReal n) where
                    v = x `atPrecision` p
                    r = v .&. (bit p - 1)
                    c = unsafeShiftR (v - r) p
-                   n = if c < 0 then c + 1 else c
+                   n = if c < 0 && r /= 0 then c + 1 else c
                    in fromInteger n
 
   round x = let p = crealPrecision x

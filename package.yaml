@@ -34,6 +34,24 @@ library:
 tests:
   test:
     main: Test.hs
+    other-modules:
+    - BoundedFunctions
+    - Data.CReal.Extra
+    - Data.Monoid.Extra
+    - Data.Ratio.Extra
+    - Floating
+    - Fractional
+    - Num
+    - Ord
+    - Random
+    - Read
+    - Real
+    - RealFloat
+    - RealFrac
+    - Test.QuickCheck.Classes.Extra
+    - Test.QuickCheck.Extra
+    - Test.Tasty.Extra
+    - Paths_exact_real
     source-dirs: test
     ghc-options:
     - -Wall
@@ -49,8 +67,10 @@ tests:
     - random >=1.0
     - checkers >=0.4
     - exact-real
+
   doctest:
     main: DocTest.hs
+    other-modules: []
     source-dirs: test
     ghc-options:
     - -Wall

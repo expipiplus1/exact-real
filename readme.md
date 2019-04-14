@@ -36,9 +36,6 @@ examples in this readme.
 Implementation
 --------------
 
-The basic operations have explanations and proofs of correctness
-[here][correctness].
-
 `CReal`'s phantom type parameter `n :: Nat` represents the precision at which
 values should be evaluated at when converting to a less precise representation.
 For instance the definition of `x == y` in the instance for `Eq` evaluates `x -
@@ -88,4 +85,3 @@ Please feel free to contact me on GitHub or as "jophish" on freenode.
 -Joe
 
 [goldberg]: http://www.validlab.com/goldberg/paper.pdf "What Every Computer Scientist Should Know About Floating-Point Arithmetic"
-[correctness]: http://www.imada.sdu.dk/~kornerup/RNC4/papers/p07.ps "The Correctness of an Implementation of Exact Arithmetic"

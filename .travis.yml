@@ -3,10 +3,8 @@ language: nix
 
 matrix:
   include:
-  - env: GHC_VERSION="ghc822"
-  - env: GHC_VERSION="ghc842"
+  - env: GHC_VERSION="ghc844"
   - env: GHC_VERSION="ghc864"
-  - env: GHC_VERSION="ghcHEAD"
 
   allowed_failures:
   - env: GHC_VERSION="ghcHEAD"

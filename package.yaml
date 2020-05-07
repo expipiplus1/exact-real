@@ -10,7 +10,7 @@ license: MIT
 github: expipiplus1/exact-real
 homepage: http://github.com/expipiplus1/exact-real
 bug-reports: http://github.com/expipiplus1/exact-real/issues
-tested-with: GHC>=8.2.2 && <=8.4.4
+tested-with: GHC>=8.2.2 && <=8.6.5
 extra-source-files:
 - .gitignore
 - readme.md

@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 6b87511321f16ecbdc52e133b86d5ab35d716f13c80af5d8ff0cefd14272c875
+-- hash: 169574c97c48af1f85dbc18a24ccdbb52ef274dd7af7bd7349fed0ba5036bcad
 
 name:           exact-real
 version:        0.12.2
@@ -18,7 +18,7 @@ maintainer:     Joe Hermaszewski <keep.it.real@monoid.al>
 copyright:      2015 Joe Hermaszewski
 license:        MIT
 license-file:   LICENSE
-tested-with:    GHC>=8.2.2 && <=8.4.4
+tested-with:    GHC>=8.2.2 && <=8.6.5
 build-type:     Simple
 extra-source-files:
     .gitignore

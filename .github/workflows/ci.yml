@@ -48,6 +48,15 @@ jobs:
       run: |
         cabal test all --enable-tests
 
+  nix:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: 'recursive'
+    - uses: cachix/install-nix-action@v8
+    - run: nix-build
+
   stack:
     name: stack / ghc ${{ matrix.ghc }}
     runs-on: ubuntu-latest

@@ -7,4 +7,4 @@ import           Build_doctests                 ( flags
 import           Test.DocTest                   ( doctest )
 
 main :: IO ()
-main = doctest $ flags <> pkgs <> module_sources
+main = doctest $ flags ++ pkgs ++ module_sources

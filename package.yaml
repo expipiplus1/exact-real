@@ -65,7 +65,7 @@ tests:
     - tasty-hunit >=0.9
     - QuickCheck >=2.9
     - random >=1.0
-    - checkers >=0.4
+    - checkers >=0.4 && <0.5.5
     - exact-real
     when:
         condition: impl(ghc < 8.0.0)

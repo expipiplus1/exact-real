@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 169574c97c48af1f85dbc18a24ccdbb52ef274dd7af7bd7349fed0ba5036bcad
+-- hash: 6f3e15d9117341483cf66f37de3053937a4e86fc60db22da88c152c7c3b4a5c5
 
 name:           exact-real
 version:        0.12.2
@@ -90,7 +90,7 @@ test-suite test
   build-depends:
       QuickCheck >=2.9
     , base >=4
-    , checkers >=0.4
+    , checkers >=0.4 && <0.5.5
     , exact-real
     , groups >=0.3
     , random >=1.0

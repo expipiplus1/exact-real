@@ -20,6 +20,7 @@ jobs:
           - "8.6.5"
           - "8.8.3"
           - "8.10.1"
+      fail-fast: false
 
     steps:
     - uses: actions/checkout@v2

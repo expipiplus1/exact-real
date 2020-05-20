@@ -16,7 +16,6 @@ extra-source-files:
 - readme.md
 - stack.yaml
 - default.nix
-- shell.nix
 
 library:
   source-dirs: src

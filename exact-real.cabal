@@ -4,7 +4,7 @@ cabal-version: 1.24
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 94cf687afccded481cfdea2fa373bddbcfc589c1e6acf61feeb0998b943a9ce9
+-- hash: add254777062e564f1fd86e43092a0be4b9fa4f7e3c056a58fd47f0164cd5f5d
 
 name:           exact-real
 version:        0.12.2
@@ -25,7 +25,6 @@ extra-source-files:
     readme.md
     stack.yaml
     default.nix
-    shell.nix
 
 source-repository head
   type: git

@@ -21,7 +21,7 @@ library:
   - Data.CReal.Converge
   - Data.CReal.Internal
   dependencies:
-  - base >=4.8
+  - base >=4.8 && < 5
   - integer-gmp
   - memoize >=0.7
   - random >=1.0

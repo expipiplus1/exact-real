@@ -4,7 +4,7 @@ cabal-version: 1.24
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 98e7c77a3471d68c28ba5279e0584fc69dc64040950236966c34860d2cd48c4b
+-- hash: e7fb5ddac703c7aaffa430dddde91612608b68662fca8d0f1885d8ef43a49557
 
 name:           exact-real
 version:        0.12.3
@@ -46,7 +46,7 @@ library
       src
   ghc-options: -Wall
   build-depends:
-      base >=4.8
+      base >=4.8 && <5
     , integer-gmp
     , memoize >=0.7
     , random >=1.0

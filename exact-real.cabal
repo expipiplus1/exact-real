@@ -4,21 +4,20 @@ cabal-version: 1.24
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: add254777062e564f1fd86e43092a0be4b9fa4f7e3c056a58fd47f0164cd5f5d
+-- hash: 98e7c77a3471d68c28ba5279e0584fc69dc64040950236966c34860d2cd48c4b
 
 name:           exact-real
-version:        0.12.2
+version:        0.12.3
 synopsis:       Exact real arithmetic
 description:    A type to represent exact real numbers using fast binary Cauchy sequences.
 category:       Math
-homepage:       http://github.com/expipiplus1/exact-real
-bug-reports:    http://github.com/expipiplus1/exact-real/issues
+homepage:       https://github.com/expipiplus1/exact-real#readme
+bug-reports:    https://github.com/expipiplus1/exact-real/issues
 author:         Joe Hermaszewski
 maintainer:     Joe Hermaszewski <keep.it.real@monoid.al>
-copyright:      2015 Joe Hermaszewski
+copyright:      2020 Joe Hermaszewski
 license:        MIT
 license-file:   LICENSE
-tested-with:    GHC>=8.2.2 && <=8.6.5
 build-type:     Custom
 extra-source-files:
     .gitignore

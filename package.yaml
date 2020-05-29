@@ -1,16 +1,12 @@
 name: exact-real
-version: 0.12.2
+version: 0.12.3
 synopsis: Exact real arithmetic
 description: A type to represent exact real numbers using fast binary Cauchy sequences.
 category: Math
 author: Joe Hermaszewski
 maintainer: Joe Hermaszewski <keep.it.real@monoid.al>
-copyright: 2015 Joe Hermaszewski
-license: MIT
+copyright: 2020 Joe Hermaszewski
 github: expipiplus1/exact-real
-homepage: http://github.com/expipiplus1/exact-real
-bug-reports: http://github.com/expipiplus1/exact-real/issues
-tested-with: GHC>=8.2.2 && <=8.6.5
 extra-source-files:
 - .gitignore
 - readme.md

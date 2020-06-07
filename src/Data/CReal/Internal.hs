@@ -125,20 +125,15 @@ crealPrecision = fromInteger . natVal
 -- >>> 10 `atPrecision` 10
 -- 10240
 atPrecision :: CReal n -> Int -> Integer
-(CR {}) `atPrecision` p | p `seq` False = undefined
-(CR mvc f) `atPrecision` p = unsafePerformIO $ mask $ \restore -> do
-  vc <- restore $ takeMVar mvc
-  flip onException (tryPutMVar mvc vc) $ do
-    vc' <- restore $ evaluate vc
-    case vc' of
-      Current j v | j >= p -> do
-        putMVar mvc vc'
-        return $ v /^ (j - p)
-      _ -> do
-        v <- restore $ evaluate $ f p
-        let !vcn = Current p v
-        putMVar mvc vcn
-        return v
+(CR mvc f) `atPrecision` (!p) = unsafePerformIO $ modifyMVar mvc $ \vc -> do
+  vc' <- evaluate vc
+  case vc' of
+    Current j v | j >= p -> do
+      pure (vc', v /^ (j - p))
+    _ -> do
+      v <- evaluate $ f p
+      let !vcn = Current p v
+      pure (vcn, v)
 {-# INLINABLE atPrecision #-}
 
 -- | A CReal with precision p is shown as a decimal number d such that d is

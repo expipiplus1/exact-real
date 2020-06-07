@@ -518,7 +518,7 @@ squareBounded x@(CR mvc _) = unsafePerformIO $ do
         p | p < 0 -> Never
         p -> Current p ((n * n) /^ (p + 2 * s))
     fn' !p = let n = atPrecision x (p + s)
-            in (n * n) /^ (p + 2 * s)
+             in (n * n) /^ (p + 2 * s)
   mvn <- newMVar vcn
   return $ CR mvn fn'
 

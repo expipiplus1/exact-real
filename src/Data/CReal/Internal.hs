@@ -423,63 +423,19 @@ instance KnownNat n => Ord (CReal n) where
   max x y = crMemoize (\p -> max (atPrecision x p) (atPrecision y p))
   min x y = crMemoize (\p -> min (atPrecision x p) (atPrecision y p))
 
--- | Heart of the mechanism for generating random @\`CReal\'@s, which is a
--- potentially infinite list of @\'Integer\'@s, each one of which refines the
--- previous ones.
-data IStream = IStream {-# UNPACK #-} !Int !Integer IStream
-
-{-# INLINE genIStream #-}
-genIStream :: forall g. RandomGen g => g -> (IStream, g)
-genIStream = start where
-  (rl, rh) = genRange (undefined :: g)
-  d :: Word
-  d = fromIntegral rh - fromIntegral rl + 1
-  dl = countLeadingZeros d
-  ds = finiteBitSize d - dl `mod` finiteBitSize d
-
-  start g = case split g of
-    (gl, gr) -> (go 0 0 gl, gr)
-  {-# INLINE start #-}
-
-  -- Generate uniform random variables between 0 and (2^x - 1) for some
-  -- @\'RandomGen\'@-dependent x, and add them to the generated value. This can
-  -- use, depending on the range, an average of up to 2 random variables per
-  -- increment of the @\'IStream\'@.
-  go c n g | c `seq` n `seq` g `seq` False = undefined
-  go c n g = case next g of
-    (i, g') -> let
-      w :: Word
-      !w = fromIntegral i - fromIntegral rl
-      in case d .&. (d - 1) /= 0 && countLeadingZeros w == dl of
-        True -> go c n g'
-        _ -> let
-          !c' = c + ds
-          !n' = unsafeShiftL n ds .|. toInteger w
-          in IStream c' n' (go c' n' g')
-
-{-# INLINABLE istreamToCReal #-}
-istreamToCReal :: IStream -> CReal n
-istreamToCReal is = crMemoize go where
-  go p | p `seq` False = undefined
-  go p = each is where
-    -- Scale the rounding factor by an amount ~ log p + 2.
-    !ps = p + finiteBitSize p - countLeadingZeros p + 1
-    each (IStream c v is')
-      | c >= ps = v /^ (c - p)
-      | otherwise = each is'
-
--- | The 'Random' instance for 'CReal' will return a random number with
--- potentially infinite precision.
-instance Random (CReal n) where
-  {-# INLINE randomR #-}
-  randomR (lo, hi) g = let
-    d = hi - lo
-    in case genIStream g of
-      (is, g') -> (mulBoundedL (istreamToCReal is) d + lo, g')
-
-  {-# INLINE random #-}
-  random g = case genIStream g of
-    (is, g') -> (istreamToCReal is, g')
+-- | The 'Random' instance for @\'CReal\' p@ will return random number with at
+-- least @p@ digits of precision, every digit after that is zero.
+instance KnownNat n => Random (CReal n) where
+  randomR (lo, hi) g = let d = hi - lo
+                           l = 1 + log2 (abs d `atPrecision` 0)
+                           p = l + crealPrecision lo
+                           (n, g') = randomR (0, 2^p) g
+                           r = fromRational (n % 2^p)
+                       in (r * d + lo, g')
+  random g = let p = 1 + crealPrecision (undefined :: CReal n)
+                 (n, g') = randomR (0, max 0 (2^p - 2)) g
+                 r = fromRational (n % 2^p)
+             in (r, g')
 
 --------------------------------------------------------------------------------
 -- Some utility functions

@@ -4,7 +4,7 @@ cabal-version: 1.24
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 4207194af32e5bff84d5b39c43a8685b42b56f671421be69c390c71e933be2b5
+-- hash: 5c421b96f8804dcb4f3ca4dca83bcc90c5f79c289b421bffe0e81a9c4e0da106
 
 name:           exact-real
 version:        0.12.3

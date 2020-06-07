@@ -24,7 +24,6 @@ library:
   dependencies:
   - base >=4.8 && < 5
   - integer-gmp
-  - memoize >=0.7
   - random >=1.0
 
 tests:

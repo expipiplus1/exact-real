@@ -169,11 +169,11 @@ instance Fractional (CReal n) where
 
 instance Floating (CReal n) where
   -- TODO: Could we use something faster such as Ramanujan's formula
-  pi = 4 * piBy4
+  pi = piBy4 `shiftL` 2
 
   exp x = let CR o = x / ln2
               l = o 0
-              y = x - fromInteger l * ln2
+              y = x - fromInteger l *. ln2
           in if l == 0
                then expBounded x
                else expBounded y `shiftL` fromInteger l
@@ -197,12 +197,12 @@ instance Floating (CReal n) where
 
   logBase x y = log y / log x
 
-  sin x = cos (x - pi / 2)
+  sin x = cos (x - piBy2)
 
   cos x = let CR o = x / piBy4
               s = o 1 /. 2
               octant = fromInteger $ s `mod` 8
-              offset = x - (fromIntegral s * piBy4)
+              offset = x - (fromIntegral s *. piBy4)
               fs = [          cosBounded
                    , negate . sinBounded . subtract piBy4
                    , negate . sinBounded
@@ -215,34 +215,34 @@ instance Floating (CReal n) where
 
   tan x = sin x .* recip (cos x)
 
-  asin x = 2 * atan (x .*. recipBounded (1 + sqrt (1 - x.*.x)))
+  asin x = atan (x .*. recipBounded (1 + sqrt (1 - x.*.x))) `shiftL` 1
 
-  acos x = pi/2 - asin x
+  acos x = piBy2 - asin x
 
   atan x = let -- q is 4 times x to within 1/4
                q = x `atPrecision` 2
            in if   -- x <= -1
-                 | q <  -4 -> atanBounded (negate (recipBounded x)) - pi / 2
+                 | q <  -4 -> atanBounded (negate (recipBounded x)) - piBy2
                    -- -1.25 <= x <= -0.75
-                 | q == -4 -> -pi / 4 - atanBounded ((x + 1) .*. recipBounded (x - 1))
+                 | q == -4 -> -piBy4 - atanBounded ((x + 1) .*. recipBounded (x - 1))
                    -- 0.75 <= x <= 1.25
-                 | q ==  4 -> pi / 4 + atanBounded ((x - 1) .*. recipBounded (x + 1))
+                 | q ==  4 -> piBy4 + atanBounded ((x - 1) .*. recipBounded (x + 1))
                    -- x >= 1
-                 | q >   4 -> pi / 2 - atanBounded (recipBounded x)
+                 | q >   4 -> piBy2 - atanBounded (recipBounded x)
                    -- -0.75 <= x <= 0.75
                  | otherwise -> atanBounded x
 
   -- TODO: benchmark replacing these with their series expansion
   sinh x = let (expX, expNegX) = expPosNeg x
-           in (expX - expNegX) / 2
+           in (expX - expNegX) `shiftR` 1
   cosh x = let (expX, expNegX) = expPosNeg x
-           in (expX + expNegX) / 2
-  tanh x = let e2x = exp (2 * x)
+           in (expX + expNegX) `shiftR` 1
+  tanh x = let e2x = exp (x `shiftL` 1)
            in (e2x - 1) *. recipBounded (e2x + 1)
 
   asinh x = log (x + sqrt (x * x + 1))
   acosh x = log (x + sqrt (x + 1) * sqrt (x - 1))
-  atanh x = (log (1 + x) - log (1 - x)) / 2
+  atanh x = (log (1 + x) - log (1 - x)) `shiftR` 1
 
 -- | 'toRational' returns the CReal n evaluated at a precision of 2^-n
 instance KnownNat n => Real (CReal n) where
@@ -280,7 +280,7 @@ instance KnownNat n => RealFloat (CReal n) where
     let y' = y `atPrecision` p
         x' = x `atPrecision` p
         θ = if | x' > 0            ->  atan (y/x)
-               | x' == 0 && y' > 0 ->  pi/2
+               | x' == 0 && y' > 0 ->  piBy2
                | x' <  0 && y' > 0 ->  pi + atan (y/x)
                | x' <= 0 && y' < 0 -> -atan2 (-y) x
                | y' == 0 && x' < 0 ->  pi    -- must be after the previous test on zero y
@@ -328,7 +328,10 @@ instance KnownNat n => Random (CReal n) where
 --
 
 piBy4 :: CReal n
-piBy4 = 4 * atanBounded (recipBounded 5) - atanBounded (recipBounded 239) -- Machin Formula
+piBy4 = (atanBounded (recipBounded 5) `shiftL` 2) - atanBounded (recipBounded 239) -- Machin Formula
+
+piBy2 :: CReal n
+piBy2 = piBy4 `shiftL` 1
 
 ln2 :: CReal n
 ln2 = logBounded 2

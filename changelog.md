@@ -1,7 +1,11 @@
 # Change Log
 
 ## WIP
-  - Small speedup (orbits testsuite about 5% faster)
+
+## [0.12.4] - 2020-06-07
+  - Big speedup (orbits testsuite about 9 times faster)
+
+Big thanks for @Zemyla for the new memoization scheme
 
 ## [0.12.3] - 2020-05-29
   - More relaxed version bounds

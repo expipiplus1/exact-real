@@ -4,10 +4,10 @@ cabal-version: 1.24
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 5c421b96f8804dcb4f3ca4dca83bcc90c5f79c289b421bffe0e81a9c4e0da106
+-- hash: 3b8926fece094589ffa737495e0936d123b8c2d9a4e8341be340b08916967c77
 
 name:           exact-real
-version:        0.12.3
+version:        0.12.4
 synopsis:       Exact real arithmetic
 description:    A type to represent exact real numbers using fast binary Cauchy sequences.
 category:       Math

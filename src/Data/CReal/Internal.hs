@@ -1,4 +1,5 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE BangPatterns #-}
 {-# LANGUAGE KindSignatures #-}
 {-# LANGUAGE MagicHash #-}
 {-# LANGUAGE MultiWayIf #-}
@@ -381,9 +382,9 @@ instance KnownNat n => RealFloat (CReal n) where
   floatRange _ = error "Data.CReal.Internal floatRange"
   decodeFloat x = let p = crealPrecision x
                   in (x `atPrecision` p, -p)
-  encodeFloat m n = case n <= 0 of
-    False -> fromRational (unsafeShiftL m n :% 1)
-    True  -> fromRational (m % bit (negate n))
+  encodeFloat m n = if n <= 0
+    then fromRational (m % bit (negate n))
+    else fromRational (unsafeShiftL m n :% 1)
   exponent = error "Data.CReal.Internal exponent"
   significand = error "Data.CReal.Internal significand"
   scaleFloat = flip shiftL
@@ -521,8 +522,7 @@ squareBounded x@(CR mvc _) = unsafePerformIO $ do
       Just (Current j n) -> case j - s of
         p | p < 0 -> Never
         p -> Current p ((n * n) /^ (p + 2 * s))
-    fn' p | p `seq` False = undefined
-    fn' p = let n = atPrecision x (p + s)
+    fn' !p = let n = atPrecision x (p + s)
             in (n * n) /^ (p + 2 * s)
   mvn <- newMVar vcn
   return $ CR mvn fn'
@@ -595,8 +595,7 @@ plusInteger (CR mvc fn) n = unsafePerformIO $ do
       Nothing -> Never
       Just Never -> Never
       Just (Current j v) -> Current j (v + unsafeShiftL n j)
-    fn' p | p `seq` False = undefined
-    fn' p = fn p + B.shiftL n p
+    fn' !p = fn p + B.shiftL n p
   mvc' <- newMVar vcn
   return $ CR mvc' fn'
 
@@ -675,8 +674,7 @@ infixl 7 /.
 -- | Division rounding to the nearest integer and rounding half integers to the
 -- nearest even integer.
 (/.) :: Integer -> Integer -> Integer
-n /. d | n `seq` d `seq` False = undefined
-n /. d = case compare d 0 of
+(!n) /. (!d) = case compare d 0 of
   LT -> roundD (negate n) (negate d)
   EQ -> divZeroErr
   GT -> roundD n d
@@ -686,8 +684,7 @@ infixl 7 /^
 -- | @n /^ p@ is equivalent to @n \'/.\' (2^p)@, but faster, and it works for
 -- negative values of p.
 (/^) :: Integer -> Int -> Integer
-n /^ p | n `seq` p `seq` False = undefined
-n /^ p = case compare p 0 of
+(!n) /^ (!p) = case compare p 0 of
   LT -> unsafeShiftL n (negate p)
   EQ -> n
   GT -> let
@@ -733,14 +730,12 @@ isqrt x | x < 0     = error "Sqrt applied to negative Integer"
 {-# INLINABLE findFirstMonotonic #-}
 findFirstMonotonic :: (Int -> Bool) -> Int
 findFirstMonotonic p = findBounds 0 1
-  where findBounds l u | l `seq` u `seq` False = undefined
-        findBounds l u = if p u then binarySearch l u
-                                else findBounds u (u * 2)
-        binarySearch l u | l `seq` u `seq` False = undefined
-        binarySearch l u = let !m = l + ((u - l) `div` 2)
-                           in if | l+1 == u  -> l
-                                 | p m       -> binarySearch l m
-                                 | otherwise -> binarySearch m u
+  where findBounds !l !u = if p u then binarySearch l u
+                                  else findBounds u (u * 2)
+        binarySearch !l !u = let !m = l + ((u - l) `div` 2)
+                             in if | l+1 == u  -> l
+                                   | p m       -> binarySearch l m
+                                   | otherwise -> binarySearch m u
 
 
 --

@@ -1,10 +1,8 @@
 cabal-version: 1.24
 
--- This file has been generated from package.yaml by hpack version 0.33.0.
+-- This file has been generated from package.yaml by hpack version 0.34.2.
 --
 -- see: https://github.com/sol/hpack
---
--- hash: 3b8926fece094589ffa737495e0936d123b8c2d9a4e8341be340b08916967c77
 
 name:           exact-real
 version:        0.12.4
@@ -20,11 +18,11 @@ license:        MIT
 license-file:   LICENSE
 build-type:     Custom
 extra-source-files:
-    .gitignore
     readme.md
     stack.yaml
     default.nix
     changelog.md
+    package.yaml
 
 source-repository head
   type: git
@@ -70,8 +68,6 @@ test-suite test
   other-modules:
       BoundedFunctions
       Data.CReal.Extra
-      Data.Monoid.Extra
-      Data.Ratio.Extra
       Floating
       Fractional
       Num
@@ -91,7 +87,7 @@ test-suite test
   build-depends:
       QuickCheck >=2.9
     , base >=4
-    , checkers >=0.4 && <0.5.5
+    , checkers >=0.5.6
     , exact-real
     , groups >=0.3
     , random >=1.0

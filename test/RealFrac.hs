@@ -5,7 +5,6 @@ module RealFrac
   ) where
 
 import Data.Function (on)
-import Data.Ratio.Extra ()
 import Test.QuickCheck.Checkers (EqProp, (=-=))
 import Test.Tasty (testGroup, TestTree)
 import Test.Tasty.QuickCheck (testProperty, Arbitrary)

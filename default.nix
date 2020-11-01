@@ -1,4 +1,5 @@
-{ pkgs ? import <nixpkgs> { }, compiler ? null, hoogle ? true }:
+{ pkgs ? import <nixpkgs> { }, compiler ? null, hoogle ? true
+, forShell ? pkgs.lib.inNixShell }:
 
 let
   src = pkgs.nix-gitignore.gitignoreSource [ ] ./.;
@@ -32,4 +33,4 @@ let
       });
   };
 
-in if pkgs.lib.inNixShell then drv.env else drv
+in if forShell then drv.env else drv

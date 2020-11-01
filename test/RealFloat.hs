@@ -4,7 +4,6 @@ module RealFloat
   ( realFloat
   ) where
 
-import Data.Ratio.Extra ()
 import Test.QuickCheck.Checkers (EqProp, (=-=), inverseL)
 import Test.Tasty (testGroup, TestTree)
 import Test.Tasty.QuickCheck (testProperty, Arbitrary, (==>))

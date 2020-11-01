@@ -2,6 +2,9 @@
 
 ## WIP
 
+## [0.12.4.1] - 2020-11-01
+  - Use newer version of `checkers`
+
 ## [0.12.4] - 2020-06-07
   - Big speedup (orbits testsuite about 9 times faster)
 

@@ -1,5 +1,5 @@
 name: exact-real
-version: 0.12.4
+version: "0.12.4.1"
 synopsis: Exact real arithmetic
 description: A type to represent exact real numbers using fast binary Cauchy sequences.
 category: Math
@@ -8,11 +8,11 @@ maintainer: Joe Hermaszewski <keep.it.real@monoid.al>
 copyright: 2020 Joe Hermaszewski
 github: expipiplus1/exact-real
 extra-source-files:
-- .gitignore
 - readme.md
 - stack.yaml
 - default.nix
 - changelog.md
+- package.yaml
 
 library:
   source-dirs: src
@@ -32,8 +32,6 @@ tests:
     other-modules:
     - BoundedFunctions
     - Data.CReal.Extra
-    - Data.Monoid.Extra
-    - Data.Ratio.Extra
     - Floating
     - Fractional
     - Num
@@ -60,7 +58,7 @@ tests:
     - tasty-hunit >=0.9
     - QuickCheck >=2.9
     - random >=1.0
-    - checkers >=0.4 && <0.5.5
+    - checkers >=0.5.6
     - exact-real
     when:
         condition: impl(ghc < 8.0.0)

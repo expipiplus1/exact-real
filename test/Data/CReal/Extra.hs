@@ -6,7 +6,7 @@ module Data.CReal.Extra
 
 import Data.CReal
 import GHC.TypeLits
-import Test.QuickCheck (Arbitrary(..), choose)
+import Test.QuickCheck (Arbitrary(..), chooseAny)
 import Test.QuickCheck.Checkers (EqProp(..), eq)
 
 instance KnownNat n => EqProp (CReal n) where
@@ -15,6 +15,6 @@ instance KnownNat n => EqProp (CReal n) where
 instance KnownNat n => Arbitrary (CReal n) where
   arbitrary = do
     integralPart <- fromInteger <$> arbitrary
-    fractionalPart <- choose (-0.5, 0.5)
+    fractionalPart <- (subtract 0.5) <$> chooseAny
     pure (integralPart + fractionalPart)
 

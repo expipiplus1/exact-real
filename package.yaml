@@ -1,5 +1,5 @@
 name: exact-real
-version: "0.12.4.1"
+version: "0.12.5"
 synopsis: Exact real arithmetic
 description: A type to represent exact real numbers using fast binary Cauchy sequences.
 category: Math
@@ -61,8 +61,8 @@ tests:
     - checkers >=0.5.6
     - exact-real
     when:
-        condition: impl(ghc < 8.0.0)
-        buildable: false
+      condition: impl(ghc < 8.0.0)
+      buildable: false
 
   doctests:
     main: Doctests.hs

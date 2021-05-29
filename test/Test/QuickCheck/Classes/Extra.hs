@@ -13,13 +13,14 @@ module Test.QuickCheck.Classes.Extra
 
   -- | Relations
   , complement
+  , strictTotalOrd
   ) where
 
 import Data.Group (invert, Group, Abelian)
 import Data.Monoid ((<>), Sum(..), Product)
-import Test.QuickCheck.Extra (Arbitrary, (<=>))
+import Test.QuickCheck.Extra (Arbitrary, (<=>), (==>))
 import Test.QuickCheck.Modifiers (NonZero)
-import Test.QuickCheck.Checkers (commutes, EqProp, (=-=), BinRel)
+import Test.QuickCheck.Checkers (commutes, transitive, EqProp, (=-=), BinRel)
 import Test.QuickCheck.Classes
 import Test.Tasty.Extra (testGroup, TestTree, testTreeFromBatch, testTreeFromNamedBatch)
 import Test.Tasty.QuickCheck (testProperty, Property, Gen, property, forAll)
@@ -79,3 +80,22 @@ complement s gen r1 r2 = testGroup s ts
                forAll (gen a) $ \ b ->
                a `r1` b <=> not (a `r2` b))
              ]
+
+strictTotalOrd
+  :: forall a
+   . (Arbitrary a, EqProp a, Eq a, Show a)
+  => String
+  -> (a -> Gen a)
+  -> BinRel a
+  -> TestTree
+strictTotalOrd s gen r = testGroup s ts
+ where
+  ts =
+    [ testProperty "irreflexive" (property $ \a -> not (a `r` a))
+    , testProperty "transitive" $ transitive r gen
+    , testProperty
+      "connected"
+      ( property
+      $ \a -> forAll (gen a) $ \b -> (a /= b) ==> (a `r` b) || (b `r` a)
+      )
+    ]

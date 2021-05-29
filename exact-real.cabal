@@ -1,11 +1,11 @@
 cabal-version: 1.24
 
--- This file has been generated from package.yaml by hpack version 0.34.2.
+-- This file has been generated from package.yaml by hpack version 0.34.4.
 --
 -- see: https://github.com/sol/hpack
 
 name:           exact-real
-version:        0.12.4.1
+version:        0.12.5
 synopsis:       Exact real arithmetic
 description:    A type to represent exact real numbers using fast binary Cauchy sequences.
 category:       Math

@@ -2,6 +2,9 @@
 
 ## WIP
 
+## [0.12.5] - 2021-05-29
+- Tweak test suite to fix #35
+
 ## [0.12.4.1] - 2020-11-01
   - Use newer version of `checkers`
 

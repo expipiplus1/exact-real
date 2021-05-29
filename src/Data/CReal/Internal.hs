@@ -406,14 +406,16 @@ instance KnownNat n => RealFloat (CReal n) where
 instance KnownNat n => Eq (CReal n) where
   -- TODO, should this try smaller values first?
   CR mvx _ == CR mvy _ | mvx == mvy = True
-  x == y = let p = crealPrecision x + 2
-           in (atPrecision x p - atPrecision y p) /^ 2 == 0
+  x == y = let p = crealPrecision x
+           in ((x - y) `atPrecision` p) == 0
+
 
 -- | Like equality, values of type @CReal p@ are compared at precision @p@.
 instance KnownNat n => Ord (CReal n) where
   compare (CR mvx _) (CR mvy _) | mvx == mvy = EQ
-  compare x y = let p = crealPrecision x + 2
-                in compare ((atPrecision x p - atPrecision y p) /^ 2) 0
+  compare x y =
+    let p = crealPrecision x
+    in compare ((x - y) `atPrecision` p) 0
   max x y = crMemoize (\p -> max (atPrecision x p) (atPrecision y p))
   min x y = crMemoize (\p -> min (atPrecision x p) (atPrecision y p))
 

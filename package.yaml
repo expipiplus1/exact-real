@@ -61,8 +61,8 @@ tests:
     - checkers >=0.5.6
     - exact-real
     when:
-        condition: impl(ghc < 8.0.0)
-        buildable: false
+      condition: impl(ghc < 8.0.0)
+      buildable: false
 
   doctests:
     main: Doctests.hs

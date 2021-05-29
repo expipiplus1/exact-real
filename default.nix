@@ -1,34 +1,21 @@
-{ pkgs ? import <nixpkgs> { }, compiler ? null, hoogle ? true
-, forShell ? pkgs.lib.inNixShell }:
+{ nixpkgsSrc ? builtins.fetchTarball {
+  url =
+    "https://github.com/NixOS/nixpkgs/archive/540dccb2aeaffa9dc69bfdc41c55abd7ccc6baa3.tar.gz"; # nixos-unstable
+  sha256 = "1j58m811w7xxjncf36hqcjqsfj979hkfcwx9wcrm3g3zbayavapg";
+}, pkgs ? import nixpkgsSrc { }, compiler ? null, extraOverrides ? _: _: { }
+, modifier ? x: x }:
 
 let
-  src = pkgs.nix-gitignore.gitignoreSource [ ] ./.;
-
-  compiler' = if compiler != null then
-    compiler
+  haskellPackages = if compiler == null then
+    pkgs.haskellPackages
   else
-    "ghc" + pkgs.lib.concatStrings
-    (pkgs.lib.splitVersion pkgs.haskellPackages.ghc.version);
+    pkgs.haskell.packages.${compiler};
 
-  # Any overrides we require to the specified haskell package set
-  haskellPackages = with pkgs.haskell.lib;
-    pkgs.haskell.packages.${compiler'}.override {
-      overrides = self: super:
-        { } // pkgs.lib.optionalAttrs hoogle {
-          ghc = super.ghc // { withPackages = super.ghc.withHoogle; };
-          ghcWithPackages = self.ghc.withPackages;
-        };
-    };
+in haskellPackages.developPackage {
+  name = "";
+  root = pkgs.nix-gitignore.gitignoreSource [ ] ./.;
+  overrides = with pkgs.haskell.lib;
+    pkgs.lib.composeExtensions (_self: _super: { }) extraOverrides;
+  inherit modifier;
+}
 
-  # Generate a haskell derivation using the cabal2nix tool on `package.yaml`
-  drv = let old = haskellPackages.callCabal2nix "" src { };
-  in old // {
-    env = pkgs.lib.overrideDerivation old.env (attrs:
-      pkgs.lib.optionalAttrs hoogle {
-        shellHook = attrs.shellHook + ''
-          export HIE_HOOGLE_DATABASE="$(cat $(${pkgs.which}/bin/which hoogle) | sed -n -e 's|.*--database \(.*\.hoo\).*|\1|p')"
-        '';
-      });
-  };
-
-in if forShell then drv.env else drv

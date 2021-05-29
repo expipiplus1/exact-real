@@ -75,7 +75,7 @@ import GHC.Real (Ratio(..), (%))
 import GHC.TypeLits
 import Text.Read
 import qualified Text.Read.Lex as L
-import System.Random (Random(..), RandomGen(..))
+import System.Random (Random(..))
 import Control.Concurrent.MVar
 import Control.Exception
 import System.IO.Unsafe (unsafePerformIO)
@@ -128,7 +128,7 @@ atPrecision :: CReal n -> Int -> Integer
 (CR mvc f) `atPrecision` (!p) = unsafePerformIO $ modifyMVar mvc $ \vc -> do
   vc' <- evaluate vc
   case vc' of
-    Current j v | j >= p -> do
+    Current j v | j >= p ->
       pure (vc', v /^ (j - p))
     _ -> do
       v <- evaluate $ f p
@@ -268,8 +268,8 @@ instance Floating (CReal n) where
                   -- 0.75 <= x <= 2
                 | l == 0 -> logBounded x
                   -- x >= 2
-                | l > 0  -> let a = x `shiftR` l
-                            in logBounded a + fromIntegral l *. ln2
+                | otherwise  -> let a = x `shiftR` l
+                                in logBounded a + fromIntegral l *. ln2
 
   sqrt x = crMemoize (\p -> let n = atPrecision x (2 * p)
                             in isqrt n)
@@ -297,7 +297,7 @@ instance Floating (CReal n) where
 
   tan x = sin x .* recip (cos x)
 
-  asin x = (atan (x .*. recipBounded (1 + sqrt (1 - squareBounded x)))) `shiftL` 1
+  asin x = atan (x .*. recipBounded (1 + sqrt (1 - squareBounded x))) `shiftL` 1
 
   acos x = piBy2 - asin x
 
@@ -355,9 +355,7 @@ instance KnownNat n => RealFrac (CReal n) where
                   v = x `atPrecision` p
                   r = v .&. (bit p - 1)
                   n = unsafeShiftR (v - r) p
-                  in case r /= 0 of
-                    True -> fromInteger $ n + 1
-                    _    -> fromInteger n
+                  in if r /= 0 then fromInteger $ n + 1 else fromInteger n
 
   floor x = let p = crealPrecision x
                 v = x `atPrecision` p
@@ -411,7 +409,7 @@ instance KnownNat n => Eq (CReal n) where
   x == y = let p = crealPrecision x + 2
            in (atPrecision x p - atPrecision y p) /^ 2 == 0
 
--- | Like equality values of type @CReal p@ are compared at precision @p@.
+-- | Like equality, values of type @CReal p@ are compared at precision @p@.
 instance KnownNat n => Ord (CReal n) where
   compare (CR mvx _) (CR mvy _) | mvx == mvy = EQ
   compare x y = let p = crealPrecision x + 2
@@ -442,7 +440,7 @@ instance KnownNat n => Random (CReal n) where
 --
 
 piBy4 :: CReal n
-piBy4 = (atanBounded (recipBounded 5) `shiftL` 2) - atanBounded (recipBounded 239) -- Machin Formula
+piBy4 = atanBounded (recipBounded 5) `shiftL` 2 - atanBounded (recipBounded 239) -- Machin Formula
 
 piBy2 :: CReal n
 piBy2 = piBy4 `shiftL` 1
@@ -609,7 +607,7 @@ shiftR :: CReal n -> Int -> CReal n
 shiftR x n = crMemoize (\p -> let p' = p - n
                               in if p' >= 0
                                  then atPrecision x p'
-                                 else atPrecision x 0 /^ (negate p'))
+                                 else atPrecision x 0 /^ negate p')
 
 -- | @x \`shiftL\` n@ is equal to @x@ multiplied by 2^@n@
 --
@@ -645,8 +643,7 @@ rationalToDecimal places (n :% d) = p ++ is ++ if places > 0 then "." ++ fs else
               _  -> ""
         ds = show (roundD (abs n * 10^places) d)
         l = length ds
-        (is, fs) = if | l <= places -> ("0", replicate (places - l) '0' ++ ds)
-                      | otherwise -> splitAt (l - places) ds
+        (is, fs) = if l <= places then ("0", replicate (places - l) '0' ++ ds) else splitAt (l - places) ds
 
 
 --
@@ -713,7 +710,7 @@ isqrt :: Integer -> Integer
 isqrt x | x < 0     = error "Sqrt applied to negative Integer"
         | x == 0    = 0
         | otherwise = until satisfied improve initialGuess
-  where improve r    = unsafeShiftR (r + (x `div` r)) 1
+  where improve r    = unsafeShiftR (r + x `div` r) 1
         satisfied r  = let r2 = r * r in r2 <= x && r2 + unsafeShiftL r 1 >= x
         initialGuess = bit (unsafeShiftR (log2 x) 1)
 
@@ -727,7 +724,7 @@ findFirstMonotonic :: (Int -> Bool) -> Int
 findFirstMonotonic p = findBounds 0 1
   where findBounds !l !u = if p u then binarySearch l u
                                   else findBounds u (u * 2)
-        binarySearch !l !u = let !m = l + ((u - l) `div` 2)
+        binarySearch !l !u = let !m = l + (u - l) `div` 2
                              in if | l+1 == u  -> l
                                    | p m       -> binarySearch l m
                                    | otherwise -> binarySearch m u
@@ -743,7 +740,11 @@ findFirstMonotonic p = findBounds 0 1
 -- [1,-2,3,-4,5]
 {-# INLINABLE alternateSign #-}
 alternateSign :: Num a => [a] -> [a]
-alternateSign = \ls -> foldr (\a r b -> if b then (negate a):r False else a:r True) (const []) ls False
+alternateSign ls = foldr
+  (\a r b -> if b then negate a : r False else a : r True)
+  (const [])
+  ls
+  False
 
 -- | @powerSeries q f x `atPrecision` p@ will evaluate the power series with
 -- coefficients @q@ up to the coefficient at index @f p@ at value @x@

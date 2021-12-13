@@ -26,6 +26,18 @@ examples in this readme.
 0 :+ 0
 ```
 
+Or:
+
+```haskell
+λ> let f :: ∀ a. Fractional a => (a, a); f = iterate (\(x0, x1) -> let x2 = 111 - (1130-3000/x0) / x1 in (x1, x2)) (11/2, 61/11) !! 100
+λ> f @Double
+(100.0,100.0)
+λ> f @(CReal 10)
+(6.0000,6.0000)
+λ> f @(CReal 50)
+(5.9999999879253263,5.9999999899377725)
+```
+
 Implementation
 --------------
 
@@ -72,9 +84,5 @@ Contributing
 ------------
 
 Contributions and bug reports are welcome!
-
-Please feel free to contact me on GitHub or as "jophish" on freenode.
-
--Joe
 
 [goldberg]: http://www.validlab.com/goldberg/paper.pdf "What Every Computer Scientist Should Know About Floating-Point Arithmetic"

@@ -1,6 +1,6 @@
 cabal-version: 1.24
 
--- This file has been generated from package.yaml by hpack version 0.34.4.
+-- This file has been generated from package.yaml by hpack version 0.34.5.
 --
 -- see: https://github.com/sol/hpack
 
@@ -11,9 +11,9 @@ description:    A type to represent exact real numbers using fast binary Cauchy 
 category:       Math
 homepage:       https://github.com/expipiplus1/exact-real#readme
 bug-reports:    https://github.com/expipiplus1/exact-real/issues
-author:         Joe Hermaszewski
-maintainer:     Joe Hermaszewski <keep.it.real@monoid.al>
-copyright:      2020 Joe Hermaszewski
+author:         Ellie Hermaszewska
+maintainer:     Ellie Hermaszewska <keep.it.real@monoid.al>
+copyright:      2020 Ellie Hermaszewska
 license:        MIT
 license-file:   LICENSE
 build-type:     Custom

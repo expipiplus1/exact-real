@@ -1,6 +1,7 @@
 # Change Log
 
 ## WIP
+- Correct author name
 
 ## [0.12.5] - 2021-05-29
 - Tweak test suite to fix #35

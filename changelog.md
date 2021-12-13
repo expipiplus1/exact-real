@@ -1,6 +1,8 @@
 # Change Log
 
 ## WIP
+
+## [0.12.5.1] - 2021-12-13
 - Correct author name
 - Squash warnings for newer GHCs
 

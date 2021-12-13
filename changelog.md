@@ -2,6 +2,10 @@
 
 ## WIP
 
+## [0.12.5.1] - 2021-12-13
+- Correct author name
+- Squash warnings for newer GHCs
+
 ## [0.12.5] - 2021-05-29
 - Tweak test suite to fix #35
 

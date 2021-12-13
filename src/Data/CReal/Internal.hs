@@ -768,7 +768,7 @@ powerSeries q termsAtPrecision x = crMemoize
                 p' = p + d
                 p'' = p' + d
                 m = atPrecision x p''
-                xs = (%1) <$> iterate (\e -> m * e /^ p'') (bit p')
+                xs = (% 1) <$> iterate (\e -> m * e /^ p'') (bit p')
                 r = sum . take (t + 1) . fmap (round . (* fromInteger (bit d))) $ zipWith (*) q xs
             in r /^ (2 * d))
 

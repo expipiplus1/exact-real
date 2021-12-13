@@ -14,7 +14,6 @@ module Test.QuickCheck.Extra
 
 import Test.QuickCheck
 import Test.QuickCheck.Checkers (EqProp)
-import Test.QuickCheck.Modifiers (NonZero(..), Positive(..))
 import System.Random (Random)
 
 deriving instance Num a => Num (NonZero a)

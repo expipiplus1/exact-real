@@ -1,5 +1,0 @@
-resolver: lts-12.26
-packages:
-- '.'
-extra-deps:
-- memoize-0.8.1@sha256:2146197c639c126796d850cb4457b24cfeb6966d6d878825f855aafce31f8874,1601

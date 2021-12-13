@@ -13,7 +13,6 @@ import           Data.List             (inits)
 import           Data.Maybe            (fromJust)
 import           Data.Proxy
 import           Data.Ratio            ((%))
-import           Data.Semigroup
 import           GHC.TypeNats
 import           Numeric.Natural
 import           Test.Tasty            (TestTree, defaultMain, testGroup)

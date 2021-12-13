@@ -17,7 +17,7 @@ module Test.QuickCheck.Classes.Extra
   ) where
 
 import Data.Group (invert, Group, Abelian)
-import Data.Monoid ((<>), Sum(..), Product)
+import Data.Monoid (Sum(..), Product)
 import Test.QuickCheck.Extra (Arbitrary, (<=>), (==>))
 import Test.QuickCheck.Modifiers (NonZero)
 import Test.QuickCheck.Checkers (commutes, transitive, EqProp, (=-=), BinRel)

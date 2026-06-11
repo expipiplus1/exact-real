@@ -18,6 +18,11 @@ realFloat x = testGroup "Test RealFloat instance" ts
                             (\y i -> let r = floatRadix y
                                      in scaleFloat i (y::a) =-= y * fromIntegral r ^^ i)
              , atan2Laws "atan2 laws" x
+             , testProperty "exponent of 0 is 0" (exponent (0 :: a) =-= 0)
+             , testProperty "exponent x = snd (decodeFloat x) + floatDigits x"
+                            (\x -> exponent (x :: a) =-= snd (decodeFloat x) + floatDigits x)
+             , testProperty "x = significand x * b ^^ exponent x, where b is the floating-point radix"
+                            (\x -> (x :: a) =-= significand x * fromInteger (floatRadix x) ^^ exponent x)
              ]
 
 decodeFloatLaws :: forall a. (Arbitrary a, EqProp a, Show a, RealFloat a) =>
